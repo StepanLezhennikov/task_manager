@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5435:5432"
+    networks:
+      - app-network
+
+  task_manager:
+    build: .
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DJANGO_DB_NAME=${DJANGO_DB_NAME}
+      - DJANGO_DB_USER=${DJANGO_DB_USER}
+      - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
+      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
+      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+
+volumes:
+  db_data:
+
+networks:
+  app-network:
+    driver: bridge
