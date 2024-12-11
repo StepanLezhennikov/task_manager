@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - my_branch
+      - ci_cd
+  pull_request:
+    branches:
+      - main
+      - my_branch
+      - ci_cd
+
+jobs:
+  black:
+    name: Run Black
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python and Install Black
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: "3.12"
+          dependencies: black
+
+      - name: Run Black
+        run: black --check .
+
+  pytest:
+    name: Run pytest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python and Install Pytest
+        uses: ./.github/actions/setup-python
+        with:
+          python-version: "3.12"
+          dependencies: pytest
+
+      - name: Run test always_true
+        run: pytest tests/always_true.py
