@@ -3,14 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - main
-      - my_branch
-      - ci_cd
+      - '**'
   pull_request:
     branches:
-      - main
-      - my_branch
-      - ci_cd
+      - '**'
 
 jobs:
   black:
@@ -30,10 +26,12 @@ jobs:
       - name: Run Black
         run: black .
 
-
   pytest:
     name: Run pytest
     runs-on: ubuntu-latest
+    needs: black
+
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout code
