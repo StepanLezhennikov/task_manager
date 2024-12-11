@@ -30,6 +30,7 @@ jobs:
       - name: Run Black
         run: black --check .
 
+
   pytest:
     name: Run pytest
     runs-on: ubuntu-latest
