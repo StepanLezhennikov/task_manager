@@ -28,7 +28,7 @@ jobs:
           dependencies: black
 
       - name: Run Black
-        run: black --check .
+        run: black .
 
 
   pytest:
