@@ -32,5 +32,8 @@ class TaskSubscription(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ("task", "user_id")
+
     def __str__(self):
         return f"User_id: {self.user_id} - task: {self.task}"
