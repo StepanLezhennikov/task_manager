@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.12-slim as builder
 
 LABEL authors="Stepan Lezhennikov"
 
@@ -11,16 +11,25 @@ RUN apt-get update && apt-get install -y \
 
 COPY pyproject.toml poetry.lock ./
 
-RUN pip install --upgrade pip && pip install poetry --timeout=120 && \
+RUN pip install --upgrade pip && pip install poetry && \
     poetry config virtualenvs.create false && \
     poetry install --no-dev
 
-COPY . .
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache bash gcc libpq-dev
+COPY --from=builder /app .
+
+RUN pip install --upgrade pip && pip install poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev
+
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh
 
-# Настраиваем переменные окружения для Python
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
