@@ -1,7 +1,6 @@
 import uuid
-
 from django.db import models
-from django.contrib.auth.models import User
+from .validators import validate_deadline_in_future
 from projects.models import Project
 
 
@@ -17,9 +16,10 @@ class Task(models.Model):
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    deadline = models.DateTimeField(blank=True, null=True)
+    deadline = models.DateTimeField(blank=True, null=True, validators=[validate_deadline_in_future])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.title
