@@ -8,7 +8,7 @@ from tasks.serializers import TaskSerializer, TaskForProjectSerializer
 class ProjectUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectUser
-        fields = ['project', 'user_id', 'user_email', 'role']
+        fields = ['project',  'role']
 
 
 class ProjectUserForProjectSerializer(serializers.ModelSerializer):
@@ -20,8 +20,10 @@ class ProjectUserForProjectSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     project_users = ProjectUserForProjectSerializer(many=True, required=False)
     tasks = TaskForProjectSerializer(many=True, required=False)
+
     class Meta:
         model = Project
+        fields = ['name', 'description', 'logo_url', 'project_users', 'tasks']
 
     def create(self, validated_data):
         name = validated_data.pop('name')
@@ -37,6 +39,3 @@ class ProjectSerializer(serializers.ModelSerializer):
 
         return project
 
-    class Meta:
-        model = Project
-        fields = ['name', 'description', 'logo_url', 'project_users', 'tasks']

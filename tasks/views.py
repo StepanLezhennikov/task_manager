@@ -18,9 +18,14 @@ class TaskViewSet(viewsets.ModelViewSet):
     ordering_fields = ['title', 'created_at']
     ordering = ['-created_at']
 
+    def perform_create(self, serializer):
+        # Отправка сообщения через Celery
+        serializer.save()
+
 
 class UpdateTaskDeadlineView(APIView):
-    def patch(self, request, pk):
+    def patch(self, request, **kwargs):
+        pk = self.kwargs.get('pk')
         result = TaskService.update_deadline(pk, request.data)
         if result["success"]:
             return Response(result["data"], status=status.HTTP_200_OK)

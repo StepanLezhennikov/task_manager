@@ -7,8 +7,7 @@ router = DefaultRouter()
 router.register(r'projects', ProjectViewSet)
 router.register(r'project_users', ProjectUserViewSet)
 
-
 urlpatterns = [
-    path('', include(router.urls)),
-    path('add_project_user/', ProjectUserViewSet.as_view({'post': 'create'}), name='add_project_user'),
+    path('api/', include(router.urls)),
+    path('user/<int:user_id>/projects/', ProjectUserViewSet.as_view({'get': 'get_user_projects', 'post': 'create_for_user'})),
 ]

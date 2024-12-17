@@ -12,5 +12,7 @@ class TaskService:
         serializer = UpdateTaskDeadlineSerializer(task, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            # Отправка сообщения через Celery
+            # Удаление предыдущего запроса на отправку для этой таски
             return {"success": True, "data": serializer.data}
         return {"success": False, "errors": serializer.errors}

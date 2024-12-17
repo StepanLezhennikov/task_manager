@@ -6,10 +6,9 @@ from projects.models import Project
 
 class Task(models.Model):
     STATUS_CHOICES = [
-        ("PENDING", "Pending"),
+        ("BACKLOG", "Backlog"),
         ("RUNNING", "Running"),
         ("DONE", "Done"),
-        ("ARCHIVED", "Archived"),
     ]
 
     title = models.CharField(max_length=255)
@@ -26,7 +25,7 @@ class Task(models.Model):
 
 
 class TaskSubscription(models.Model):
-    user_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    user_id = models.BigIntegerField()
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="subscriptions"
     )

@@ -22,7 +22,7 @@ class ProjectUser(models.Model):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="project_users"
     )
-    user_id = models.UUIDField()
+    user_id = models.BigIntegerField()
     user_email = models.EmailField(max_length=255)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="reader")
     created_at = models.DateTimeField(auto_now_add=True)
