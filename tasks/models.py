@@ -1,36 +1,38 @@
+import uuid
 from django.db import models
-from django.contrib.auth.models import User
+from .validators import validate_deadline_in_future
 from projects.models import Project
 
 
 class Task(models.Model):
     STATUS_CHOICES = [
-        ("PENDING", "Pending"),
+        ("BACKLOG", "Backlog"),
         ("RUNNING", "Running"),
         ("DONE", "Done"),
-        ("ARCHIVED", "Archived"),
     ]
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    deadline = models.DateTimeField(blank=True, null=True)
+    deadline = models.DateTimeField(blank=True, null=True, validators=[validate_deadline_in_future])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.title
 
 
 class TaskSubscription(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="task_subscriptions"
-    )
+    user_id = models.BigIntegerField()
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="subscriptions"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ("task", "user_id")
+
     def __str__(self):
-        return f"{self.user} - {self.task}"
+        return f"User_id: {self.user_id} - task: {self.task}"
