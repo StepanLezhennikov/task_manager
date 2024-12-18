@@ -1,4 +1,5 @@
 from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Project, ProjectUser
 from .serializers import ProjectSerializer, ProjectUserSerializer
@@ -14,6 +15,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
     queryset = ProjectUser.objects.all()
     serializer_class = ProjectUserSerializer
 
+    @action(detail=True, methods=['POST'])
     def create_for_user(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
         project = request.data.get('project')
@@ -33,13 +35,15 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user_id=user_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=['GET'])
     def get_user_projects(self, request, *args, **kwargs):
         user_id = kwargs.get('user_id')
+
         if not user_id:
             return Response(
                 {"error": "user_id is required in the URL."},
