@@ -11,6 +11,6 @@ class TaskService:
             task.save()
             return TaskDeadlineChanged(status="success", deadline=data["deadline"])
         except Task.DoesNotExist:
-            return {"success": False, "errors": "Task does not exist"}
+            return TaskDeadlineChanged(status="error", error="Incorrect task Id")
         except:
             return TaskDeadlineChanged(status="error", error="Incorrect deadline")
