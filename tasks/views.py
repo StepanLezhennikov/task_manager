@@ -27,9 +27,9 @@ class UpdateTaskDeadlineView(APIView):
     def patch(self, request, **kwargs):
         pk = self.kwargs.get('pk')
         result = TaskService.update_deadline(pk, request.data)
-        if result["success"]:
-            return Response(result["data"], status=status.HTTP_200_OK)
-        return Response(result["errors"], status=status.HTTP_400_BAD_REQUEST)
+        if result.status == "success":
+            return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
+        return Response(result.error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class TaskSubscriptionViewSet(viewsets.ModelViewSet):

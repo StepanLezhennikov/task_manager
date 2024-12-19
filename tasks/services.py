@@ -1,5 +1,5 @@
 from .models import Task
-from .serializers import UpdateTaskDeadlineSerializer
+from tasks.schemas.dto import TaskDeadlineChanged
 
 
 class TaskService:
@@ -7,12 +7,10 @@ class TaskService:
     def update_deadline(pk, data):
         try:
             task = Task.objects.get(pk=pk)
+            task.deadline = data["deadline"]
+            task.save()
+            return TaskDeadlineChanged(status="success", deadline=data["deadline"])
         except Task.DoesNotExist:
-            return {"success": False, "errors": "Задача не найдена"}
-        serializer = UpdateTaskDeadlineSerializer(task, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            # Отправка сообщения через Celery
-            # Удаление предыдущего запроса на отправку для этой таски
-            return {"success": True, "data": serializer.data}
-        return {"success": False, "errors": serializer.errors}
+            return {"success": False, "errors": "Task does not exist"}
+        except:
+            return TaskDeadlineChanged(status="error", error="Incorrect deadline")
