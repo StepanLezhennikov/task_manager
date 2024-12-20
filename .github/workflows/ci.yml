@@ -84,7 +84,7 @@ jobs:
           poetry run python -c "
           import psycopg
           try:
-              conn = psycopg2.connect(
+              conn = psycopg.connect(
                   dbname='${{ secrets.DJANGO_DB_NAME }}',
                   user='${{ secrets.DJANGO_DB_USER }}',
                   password='${{ secrets.DJANGO_DB_PASSWORD }}',
