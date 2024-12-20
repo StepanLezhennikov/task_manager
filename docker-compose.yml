@@ -28,6 +28,7 @@ services:
       - .:/app
     networks:
       - app-network
+    env_file: .env
 
 volumes:
   db_data:
