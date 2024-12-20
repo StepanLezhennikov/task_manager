@@ -52,4 +52,9 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: "task_manager.settings"
           SECRET_KEY: "django-insecure-83jwi=a(ucksms6#30pc=7jg=5swjx(z2-qhak%z+!s+ba=jf#"
+          DJANGO_DB_NAME: task_manager
+          DJANGO_DB_USER: postgres
+          DJANGO_DB_PASSWORD: postgres
+          DJANGO_DB_HOST: db
+          DJANGO_DB_PORT: 5432
         run: pytest .
