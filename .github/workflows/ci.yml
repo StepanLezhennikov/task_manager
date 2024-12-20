@@ -34,14 +34,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python and Install Pytest
+      - name: Setup Python and Install Dependencies
         uses: ./.github/actions/setup-python
         with:
           python-version: "3.12"
           dependencies: |
             pytest
-            pytest-django
             django===5.1.4
+            pytest-django
 
       - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: "task_manager.settings"
         run: pytest .
