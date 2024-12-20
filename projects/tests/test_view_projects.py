@@ -20,7 +20,6 @@ def test_create_project(api_client, project_data):
 def test_create_project_with_invalid_data(api_client, invalid_project_data):
     """Тест создания проекта с некорректными данными."""
     response = api_client.post(PROJECTS_URL, data=invalid_project_data)
-    print(response.data, response.status_code)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
