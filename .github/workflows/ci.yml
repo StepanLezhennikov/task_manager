@@ -42,9 +42,6 @@ jobs:
       - name: Docker Compose Setup
         uses: ndeloof/install-compose-action@v0.0.1
 
-      - name: Check .env exists
-        run: ls -la .env
-
       - name: Start up containers with docker compose
         run: docker-compose up -d
 
