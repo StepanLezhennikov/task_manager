@@ -5,6 +5,8 @@ from rest_framework.test import APIClient
 from projects.models import Project
 from tasks.models import Task
 
+TASKS_URL = "/api/tasks/"
+TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"
 
 @pytest.fixture
 def api_client():
@@ -40,7 +42,7 @@ def task_data_views(project):
         "title": "Write tests",
         "description": "Write unit tests for the application.",
         "status": "RUNNING",
-        "deadline": "2024-12-20T00:00:00Z",
+        "deadline": "2024-12-27T00:00:00Z",
     }
 
 

@@ -29,7 +29,6 @@ jobs:
   pytest:
     name: Run pytest
     runs-on: ubuntu-latest
-    needs: black
 
     steps:
       - name: Checkout code
@@ -41,5 +40,5 @@ jobs:
           python-version: "3.12"
           dependencies: pytest
 
-      - name: Run test always_true
+      - name: Run tests
         run: pytest .

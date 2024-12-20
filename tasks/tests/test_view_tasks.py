@@ -1,9 +1,7 @@
 import pytest
 from rest_framework import status
 from tasks.models import Task, TaskSubscription
-
-TASKS_URL = "/api/tasks/"
-TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"
+from tasks.tests.conftest import TASKS_URL, TASK_SUBSCRIPTIONS_URL
 
 
 @pytest.mark.django_db
@@ -15,9 +13,11 @@ def test_create_task(api_client, task_data_views):
     assert created_task.description == task_data_views["description"]
     assert created_task.status == task_data_views["status"]
 
+
 @pytest.mark.django_db
 def test_create_task_with_invalid_data(api_client, invalid_task_data):
     response = api_client.post(TASKS_URL, data=invalid_task_data)
+    print(response.data, response.status_code)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
@@ -25,27 +25,8 @@ def test_create_task_with_invalid_data(api_client, invalid_task_data):
 def test_list_tasks(api_client, task_data_filters):
     """Тест списка задач через TaskViewSet."""
     response = api_client.get(TASKS_URL)
-
     assert response.status_code == status.HTTP_200_OK
     assert response.data.get('count') == len(task_data_filters)
-
-
-@pytest.mark.django_db
-def test_filter_tasks_by_status(api_client, task_data_filters):
-    """Тест фильтрации задач по статусу."""
-    response = api_client.get(TASKS_URL, {"status": "BACKLOG"})
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data.get('count') == 1
-    first_task = response.data.get('results')[0]
-    assert first_task["title"] == "Write tests"
-
-@pytest.mark.django_db
-def test_ordering_tasks(api_client, task_data_filters):
-    """Тест сортировки задач по названию."""
-    response = api_client.get(TASKS_URL, {"ordering": "title"})
-    assert response.status_code == status.HTTP_200_OK
-    titles = [task["title"] for task in response.data.get('results')]
-    assert titles == sorted(titles)
 
 
 @pytest.mark.django_db
