@@ -82,7 +82,7 @@ jobs:
       - name: List tables in the database
         run: |
           poetry run python -c "
-          import psycopg2
+          import psycopg
           try:
               conn = psycopg2.connect(
                   dbname='${{ secrets.DJANGO_DB_NAME }}',
@@ -101,7 +101,9 @@ jobs:
               conn.close()
           except Exception as e:
               print(f'Error: {e}')
-          "
+          "except Exception as e:
+    print(f'Error: {e}')
+"
 
       - name: Test with pytest
         working-directory: .
