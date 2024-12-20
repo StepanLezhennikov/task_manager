@@ -43,11 +43,6 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
         ports:
           - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U ${{ secrets.DJANGO_DB_USER }}"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
       - name: Checkout code
