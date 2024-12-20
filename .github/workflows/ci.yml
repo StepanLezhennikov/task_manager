@@ -71,9 +71,13 @@ jobs:
         run: |
           poetry run python -c "import psycopg; psycopg.connect(host='localhost', dbname='${{ secrets.DJANGO_DB_NAME }}', user='${{ secrets.DJANGO_DB_USER }}', password='${{ secrets.DJANGO_DB_PASSWORD }}')"
 
+      - name: Flush database
+        run: |
+          poetry run python manage.py flush --noinput
+
       - name: Apply Django migrations
         run: |
-          poetry run python manage.py migrate
+          poetry run python manage.py migrate --noinput
 
       - name: Test with pytest
         working-directory: .
