@@ -17,11 +17,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python and Install Black
-        uses: ./.github/actions/setup-python
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-          dependencies: black
+
+      - name: Install Black
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
 
       - name: Run Black
         run: black .
@@ -34,16 +38,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Python and Install Dependencies
-        uses: ./.github/actions/setup-python
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: "3.12"
-          dependencies: |
-            pytest
-            django===5.1.4
-            pytest-django
 
-      - name: Run tests
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest django==5.1.4 pytest-django
+
+      - name: Run Tests
         env:
           DJANGO_SETTINGS_MODULE: "task_manager.settings"
         run: pytest .
