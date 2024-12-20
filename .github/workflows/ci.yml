@@ -55,7 +55,7 @@ jobs:
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
 
       - name: Start up containers with docker compose
-        run: docker-compose up -d
+        run: docker-compose up -d --memory=4g
 
       - name: Run tests
         run: docker-compose exec task_manager pytest --cov=. --cov-report=term --cov-fail-under=90
