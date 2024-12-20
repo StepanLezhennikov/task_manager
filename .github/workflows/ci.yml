@@ -49,5 +49,4 @@ jobs:
           poetry install
 
       - name: Test with pytest
-        working-directory: ./app
         run: pytest .
