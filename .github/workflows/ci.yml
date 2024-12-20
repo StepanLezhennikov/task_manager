@@ -101,9 +101,7 @@ jobs:
               conn.close()
           except Exception as e:
               print(f'Error: {e}')
-          "except Exception as e:
-    print(f'Error: {e}')
-"
+          "
 
       - name: Test with pytest
         working-directory: .
