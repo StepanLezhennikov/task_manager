@@ -58,5 +58,5 @@ jobs:
           echo "DJANGO_DB_PORT=${{ secrets.DJANGO_DB_PORT }}" >> .env
 
       - name: Test with pytest
-        working-directory: ./task_manager
+        working-directory: .
         run: poetry run pytest .
