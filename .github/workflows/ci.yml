@@ -38,7 +38,10 @@ jobs:
         uses: ./.github/actions/setup-python
         with:
           python-version: "3.12"
-          dependencies: pytest
+          dependencies: |
+            pytest
+            pytest-django
+            django===5.1.4
 
       - name: Run tests
         run: pytest .
