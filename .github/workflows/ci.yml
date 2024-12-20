@@ -48,6 +48,15 @@ jobs:
         run: |
           poetry install
 
+      - name: Create .env file from GitHub secrets
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+          echo "DJANGO_DB_NAME=${{ secrets.DJANGO_DB_NAME }}" >> .env
+          echo "DJANGO_DB_USER=${{ secrets.DJANGO_DB_USER }}" >> .env
+          echo "DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }}" >> .env
+          echo "DJANGO_DB_HOST=${{ secrets.DJANGO_DB_HOST }}" >> .env
+          echo "DJANGO_DB_PORT=${{ secrets.DJANGO_DB_PORT }}" >> .env
+
       - name: Test with pytest
         working-directory: ./task_manager
         run: poetry run pytest .
