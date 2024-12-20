@@ -18,10 +18,6 @@ services:
       - "8000:8000"
     depends_on:
       - db
-    deploy:
-      resources:
-        limits:
-          memory: 4G
     environment:
       - DJANGO_DB_NAME=${DJANGO_DB_NAME}
       - DJANGO_DB_USER=${DJANGO_DB_USER}
