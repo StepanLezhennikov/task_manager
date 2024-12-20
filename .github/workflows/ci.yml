@@ -82,26 +82,26 @@ jobs:
       - name: List tables in the database
         run: |
           poetry run python -c "
-import psycopg2
-try:
-    conn = psycopg2.connect(
-        dbname='${{ secrets.DJANGO_DB_NAME }}',
-        user='${{ secrets.DJANGO_DB_USER }}',
-        password='${{ secrets.DJANGO_DB_PASSWORD }}',
-        host='localhost',
-        port=5432
-    )
-    cursor = conn.cursor()
-    cursor.execute(\"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';\")
-    tables = cursor.fetchall()
-    print('Tables in the database:')
-    for table in tables:
-        print(table[0])
-    cursor.close()
-    conn.close()
-except Exception as e:
-    print(f'Error: {e}')
-"
+          import psycopg2
+          try:
+              conn = psycopg2.connect(
+                  dbname='${{ secrets.DJANGO_DB_NAME }}',
+                  user='${{ secrets.DJANGO_DB_USER }}',
+                  password='${{ secrets.DJANGO_DB_PASSWORD }}',
+                  host='localhost',
+                  port=5432
+              )
+              cursor = conn.cursor()
+              cursor.execute(\"SELECT table_name FROM information_schema.tables WHERE table_schema = 'public';\")
+              tables = cursor.fetchall()
+              print('Tables in the database:')
+              for table in tables:
+                  print(table[0])
+              cursor.close()
+              conn.close()
+          except Exception as e:
+              print(f'Error: {e}')
+          "
 
       - name: Test with pytest
         working-directory: .
