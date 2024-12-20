@@ -42,11 +42,12 @@ jobs:
         uses: ./.github/actions/setup-python
         with:
           python-version: "3.12"
+          dependencies: "poetry"
 
-      - name: Install Poetry and Dependencies
+      - name: Install dependencies
         run: |
           poetry install
 
       - name: Test with pytest
         working-directory: ./app
-        run: pytest
+        run: pytest .
