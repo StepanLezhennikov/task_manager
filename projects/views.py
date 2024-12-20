@@ -38,7 +38,6 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
             serializer.save(user_id=user_id)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['GET'])
