@@ -46,8 +46,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          poetry add pytest
           poetry install
 
       - name: Test with pytest
+        working-directory: ./task_manager
         run: pytest .
