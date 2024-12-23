@@ -69,6 +69,14 @@ def project_user_for_project_data(project):
     }
 
 @pytest.fixture
+def project_user_for_project_data_invalid(project):
+    """Неправильные данные для создания пользователя в проекте через API."""
+    return {
+        "project": project.pk,
+        "role": "invalid role",
+    }
+
+@pytest.fixture
 def project_user_for_test(project):
     """Фикстура для пользователя, связанного с проектом."""
     return ProjectUser.objects.create(

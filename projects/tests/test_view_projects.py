@@ -73,32 +73,32 @@ def test_create_project_user_for_user(api_client,  project_user_for_project_data
     assert created_user.project.pk == project_pk
     assert created_user.role == project_user_for_project_data["role"]
 
-#
-# @pytest.mark.django_db
-# def test_create_project_user_with_invalid_data(api_client, project):
-#     """Тест создания пользователя в проекте с некорректными данными."""
-#     invalid_data = {"user_email": "invalid-email", "role": "invalid_role"}
-#     url = f"/api/projects/{project.pk}/project_users/"
-#     response = api_client.post(url, data=invalid_data)
-#     assert response.status_code == status.HTTP_400_BAD_REQUEST
-#
-#
-# @pytest.mark.django_db
-# def test_list_project_users(api_client, project, project_user_for_test):
-#     """Тест списка пользователей проекта через ProjectUserViewSet."""
-#     response = api_client.get(PROJECT_USERS_URL)
-#     assert response.status_code == status.HTTP_200_OK
-#     assert len(response.data['results']) == 1
-#     assert response.data['results'][0]["user_email"] == project_user_for_test.user_email
-#
-#
-# @pytest.mark.django_db
-# def test_get_user_projects(api_client, project, project_user_for_test):
-#     """Тест получения проектов пользователя через ProjectUserViewSet."""
-#     url = f"/api/user/{project_user_for_test.user_id}/projects/"
-#     response = api_client.get(url)
-#     assert response.status_code == status.HTTP_200_OK
-#     assert len(response.data) == 1
-#     assert response.data[0]['project']['name'] == project.name
-#     assert response.data[0]['user_email'] == project_user_for_test.user_email
-#
+
+@pytest.mark.django_db
+def test_create_project_user_with_invalid_data(api_client, project_user_for_project_data_invalid):
+    """Тест создания пользователя в проекте с некорректными данными."""
+    url = f"/user/1/projects/"
+    response = api_client.post(url, data=project_user_for_project_data_invalid)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+def test_list_project_users(api_client, project, project_user_for_test):
+    """Тест списка пользователей проекта через ProjectUserViewSet."""
+    response = api_client.get(PROJECT_USERS_URL)
+    assert response.status_code == status.HTTP_200_OK
+    res_count = response.data.get('count')
+    assert res_count == 1
+    assert response.data.get('results')[0]["role"] == project_user_for_test.role
+
+
+@pytest.mark.django_db
+def test_get_user_projects(api_client, project, project_user_for_test):
+    """Тест получения проектов пользователя через ProjectUserViewSet."""
+    url = f"/user/{project_user_for_test.user_id}/projects/"
+    response = api_client.get(url)
+    print(response.data)
+    assert response.status_code == status.HTTP_200_OK
+    assert len(response.data) == 1
+    assert response.data[0]['name'] == project.name
+    assert response.data[0]['project_users'][0]['user_email'] == project_user_for_test.user_email
