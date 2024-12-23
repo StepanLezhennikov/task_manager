@@ -25,7 +25,7 @@ def project():
 def project_user(project):
     """Фикстура для создания пользователя в проекте."""
     return ProjectUser.objects.create(
-        project=project.pk,
+        project=project,
         user_id=1,
         user_email="example@gmail.com",
         role="editor"
@@ -81,7 +81,7 @@ def project_user_for_test(project):
     """Фикстура для пользователя, связанного с проектом."""
     return ProjectUser.objects.create(
         project=project,
-        user_id=2,
+        user_id=1,
         user_email="example@gmail.com",
         role="reader"
     )

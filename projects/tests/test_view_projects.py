@@ -67,6 +67,7 @@ def test_create_project_user_for_user(api_client,  project_user_for_project_data
     url = f"/user/1/projects/"
     project_pk  = project_user_for_project_data["project"]
     response = api_client.post(url, data=project_user_for_project_data, format='json')
+    print(response.data)
     assert response.status_code == status.HTTP_201_CREATED
 
     created_user = ProjectUser.objects.get(user_id=1)
