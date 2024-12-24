@@ -1,11 +1,10 @@
 from projects.models import ProjectUser, Project
-from projects.serializers import ProjectSerializer
+from projects.serializers import ProjectSerializer, GetProjectUserSerializer
 
 
 class ProjectService:
     @staticmethod
-    def get_user_projects(user_id):
-        project_ids = ProjectUser.objects.filter(user_id=user_id).values_list('project_id', flat=True)
-        projects = Project.objects.filter(id__in=project_ids).prefetch_related('tasks', 'project_users')
-        serializer = ProjectSerializer(projects, many=True)
+    def get_project_users(project_id):
+        users = ProjectUser.objects.filter(project_id=project_id)
+        serializer = GetProjectUserSerializer(users, many=True)
         return serializer.data
