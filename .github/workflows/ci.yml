@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-      - '**'
+      - '**'  # For the black job, it still runs on all branches
   pull_request:
     branches:
-      - '**'
+      - '**'  # For the black job, it still runs on all branches
 
 jobs:
   black:
@@ -33,6 +33,7 @@ jobs:
   run-tests:
     name: Run pytest
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main'  # Ensure tests run only for 'main' branch or pull requests targeting 'main'
 
     services:
       postgres:
