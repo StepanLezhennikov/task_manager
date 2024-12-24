@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:latest
@@ -31,7 +29,6 @@ services:
     networks:
       - app-network
     env_file: .env
-
 
 volumes:
   db_data:

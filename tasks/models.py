@@ -1,4 +1,3 @@
-import uuid
 from django.db import models
 from .validators import validate_deadline_in_future
 from projects.models import Project
@@ -25,10 +24,17 @@ class Task(models.Model):
 
 
 class TaskSubscription(models.Model):
+    ROLE_CHOICES = [
+        ("OWNER", "Owner"),
+        ("PERFORMER", "Performer"),
+    ]
+
     user_id = models.BigIntegerField()
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="subscriptions"
     )
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="PERFORMER")
+    is_subscribed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
