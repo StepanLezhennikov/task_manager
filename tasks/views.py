@@ -3,8 +3,6 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-
-from projects.permissions import get_user_from_jwt
 from tasks.models import Task, TaskSubscription
 from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
 from .permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
@@ -23,11 +21,11 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject]
 
     def perform_create(self, serializer):
-        # Отправка сообщения через Celery
+        # Sending message with Celery
         task = serializer.save()
         TaskSubscription.objects.create(
             task=task,
-            user_id=get_user_from_jwt(self.request)['user_id'],
+            user_id=self.request.user_id,
             role="Owner",
             is_subscribed=True
         )

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from .models import Project, ProjectUser
 from .serializers import ProjectSerializer, ProjectUserSerializer
 from .services import ProjectService
-from .permissions import IsProjectOwnerOrReadOnly, get_user_from_jwt, IsProjectUserOwnerOrReader
+from .permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -15,7 +15,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         Возвращает только проекты, к которым пользователь имеет доступ.
         """
-        user_id = get_user_from_jwt(self.request)['user_id']
+        user_id = self.request.user_id
         project_ids = ProjectUser.objects.filter(user_id=user_id).values_list('project_id', flat=True)
         return Project.objects.filter(id__in=project_ids)
 
@@ -26,8 +26,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         project = serializer.save()
         ProjectUser.objects.create(
             project=project,
-            user_id=get_user_from_jwt(self.request)['user_id'],
-            user_email=get_user_from_jwt(self.request)['email'],
+            user_id=self.request.user_id,
+            user_email=self.request.user_email,
             role="owner"
         )
 
@@ -41,7 +41,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         """
         Возвращает список участников проекта, доступных текущему пользователю.
         """
-        user_id = get_user_from_jwt(self.request)['user_id']
+        user_id = self.request.user_id
         project_ids = ProjectUser.objects.filter(user_id=user_id).values_list('project_id', flat=True)
         return ProjectUser.objects.filter(project_id__in=project_ids)
 
@@ -68,7 +68,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        if owner_id != get_user_from_jwt(request)['user_id']:
+        if owner_id != request.user_id:
             return Response(
                 {"error": "Only the project owner can add users."},
                 status=status.HTTP_403_FORBIDDEN
@@ -94,7 +94,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['GET'])
     def get_project_users(self, request, *args, **kwargs):
         """Просмотр пользователей на проекте"""
-        user_id = get_user_from_jwt(self.request)['user_id']
+        user_id = request.user_id
         project_id = kwargs.get('project_id')
 
         if not Project.objects.filter(id=project_id).exists():
@@ -114,5 +114,6 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
                 {"error": "You do not have access to this project."},
                 status=status.HTTP_403_FORBIDDEN
             )
+
         data = ProjectService.get_project_users(user_id)
         return Response(data, status=status.HTTP_200_OK)
