@@ -1,7 +1,6 @@
 from rest_framework.permissions import BasePermission
 
 from projects.models import ProjectUser
-from projects.permissions import get_user_from_jwt
 from tasks.models import TaskSubscription
 
 
@@ -11,7 +10,7 @@ class IsTaskPerformerOrOwner(BasePermission):
     """
 
     def has_permission(self, request, view):
-        user_id = get_user_from_jwt(request)['user_id']
+        user_id = request.user.id
         task_id = view.kwargs.get('pk')
 
         print(task_id)
@@ -39,7 +38,7 @@ class IsUserOwnerOrEditorOfProject(BasePermission):
     """
 
     def has_permission(self, request, view):
-        user_id = get_user_from_jwt(request)['user_id']
+        user_id = request.user.id
         project_id = request.data.get('project')
 
         if not project_id:

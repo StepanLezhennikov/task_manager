@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     "projects",
     "tasks",
     "rest_framework",
-    "django_filters"
+    "django_filters",
+    'django_celery_results',
 ]
 
 
@@ -143,3 +144,13 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'stepanlezennikov@gmail.com'
+EMAIL_HOST_PASSWORD = 'your_app_specific_password'

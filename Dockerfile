@@ -27,12 +27,13 @@ RUN pip install --upgrade pip && pip install poetry && \
     poetry install --no-dev
 
 COPY entrypoint.sh /entrypoint.sh
+COPY worker_entrypoint.sh /worker_entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint.sh /worker_entrypoint.sh
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/entrypoint.sh"]

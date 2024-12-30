@@ -5,6 +5,7 @@ from .models import Project, ProjectUser
 from .serializers import ProjectSerializer, ProjectUserSerializer
 from .services import ProjectService
 from .permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
+from .tasks import send_email_invite
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -67,8 +68,10 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
                 {"error": "Project does not exist or you have no access to this project."},
                 status=status.HTTP_404_NOT_FOUND
             )
-
+        print("owner_id", owner_id)
+        print("request.user_id", request.user_id)
         if owner_id != request.user_id:
+            print('ping')
             return Response(
                 {"error": "Only the project owner can add users."},
                 status=status.HTTP_403_FORBIDDEN
@@ -86,6 +89,13 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
+            subject = f"You have been added to a project"
+            message = f"You have been added to a project {serializer.data['project']}"
+            from_email = 'stepanlezennikov@gmail.com'
+            recipient_list = ['stepanlezennikov@gmail.com']
+            # print(subject, message, from_email, recipient_list)
+            send_email_invite.delay(subject, message, from_email, recipient_list)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

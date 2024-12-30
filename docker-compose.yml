@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:latest
@@ -13,22 +15,52 @@ services:
       - app-network
 
   task_manager:
-    build: .
+    image: task_manager
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - redis
     environment:
       - DJANGO_DB_NAME=${DJANGO_DB_NAME}
       - DJANGO_DB_USER=${DJANGO_DB_USER}
       - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
       - DJANGO_DB_HOST=${DJANGO_DB_HOST}
       - DJANGO_DB_PORT=${DJANGO_DB_PORT}
+      - CELERY_BROKER_URL:"redis://redis:6379/0"
+      - CELERY_RESULT_BACKEND:"redis://redis:6379/0"
     volumes:
       - .:/app
     networks:
       - app-network
     env_file: .env
+    entrypoint: "/entrypoint.sh"
+
+  celery:
+    build: .
+    image: task_manager
+    depends_on:
+      - redis
+    environment:
+      - DJANGO_DB_NAME=${DJANGO_DB_NAME}
+      - DJANGO_DB_USER=${DJANGO_DB_USER}
+      - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
+      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
+      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
+      - CELERY_BROKER_URL:redis://redis:6379/0
+      - CELERY_RESULT_BACKEND:redis://redis:6379/0
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    entrypoint: "/worker_entrypoint.sh"
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
 
 volumes:
   db_data:
