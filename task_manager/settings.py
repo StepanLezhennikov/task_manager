@@ -148,9 +148,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'stepanlezennikov@gmail.com'
-EMAIL_HOST_PASSWORD = 'your_app_specific_password'
+SEND_MAIL_API_URL = "https://api.sendsay.ru/general/api/v100/json/x_1735560557940245"
+SEND_MAIL_API_KEY = "19m37LRf5dbKNGFM6JpRn_60Hw-sQo0qolkhNynWkC8CL0df5rbHLoNeFSqy3_5aaiRwc5e1grWV9K0lYPBktGxK42mhuyQEs"
+FROM_EMAIL = "stsiapan.liazhennikau@pynest.io"

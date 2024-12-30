@@ -1,15 +1,42 @@
 from celery import shared_task
-from django.core.mail import send_mail
+from task_manager.settings import SEND_MAIL_API_KEY, SEND_MAIL_API_URL, FROM_EMAIL
+import requests
 
 @shared_task
-def send_email_invite(subject, message, from_email, recipient_list):
+def send_email(subject, message, recipient_list):
     """
-    Отправка email через Celery.
+    Sending mail with Celery.
     """
-    send_mail(subject, message, from_email, recipient_list)
-    return f"Email sent to {', '.join(recipient_list)}"
+    results = []
+
+    for recipient in recipient_list:
+        payload = {
+            "action": "issue.send",
+            "letter": {
+                "message": {
+                    "html": message
+                },
+                "subject": subject,
+                "from.email": FROM_EMAIL
+            },
+            "group": "personal",
+            "email": recipient,
+            "sendwhen": "now",
+            "apikey": SEND_MAIL_API_KEY
+        }
+
+        try:
+            response = requests.post(SEND_MAIL_API_URL, json=payload)
+
+            if response.status_code == 200:
+                results.append(f"Email sent to {recipient}")
+            else:
+                results.append(f"Failed to send email to {recipient}: {response.text}")
+        except requests.RequestException as e:
+            results.append(f"Error sending email to {recipient}: {str(e)}")
+
+    return results
 
 @shared_task
 def debug_task():
-    print("Debug task executed successfully!")
     return "Debug task executed successfully!"
