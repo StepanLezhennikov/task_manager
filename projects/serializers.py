@@ -10,6 +10,11 @@ class ProjectUserSerializer(serializers.ModelSerializer):
         model = ProjectUser
         fields = ['project',  'role']
 
+class GetProjectUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectUser
+        fields = ['user_id', 'user_email', 'role']
+
 
 class ProjectUserForProjectSerializer(serializers.ModelSerializer):
     class Meta:

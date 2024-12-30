@@ -27,6 +27,7 @@ class TaskSubscription(models.Model):
     ROLE_CHOICES = [
         ("OWNER", "Owner"),
         ("PERFORMER", "Performer"),
+        ("SUBSCRIBER", "Subscriber"),
     ]
 
     user_id = models.BigIntegerField()
