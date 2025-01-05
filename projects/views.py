@@ -5,7 +5,7 @@ from .models import Project, ProjectUser
 from .serializers import ProjectSerializer, ProjectUserSerializer
 from .services import ProjectService
 from .permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
-from .notifications import send_invite_email
+from notifications.services import NotificationService
 
 class BaseProjectViewSet(viewsets.ModelViewSet):
     def has_access_to_project(self, user_id, project_id):
@@ -84,7 +84,7 @@ class ProjectUserViewSet(BaseProjectViewSet):
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
-            send_invite_email(from_user_email=request.user_email, project_name=project_name, recipient_list=["stepanlezennikov@gmail.com"]) # Change email later
+            NotificationService.send_invite_email(from_user_email=request.user_email, project_name=project_name, recipient_list=["stepanlezennikov@gmail.com"]) # Change email later
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

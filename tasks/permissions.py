@@ -1,5 +1,4 @@
 from rest_framework.permissions import BasePermission
-
 from projects.models import ProjectUser
 from tasks.models import TaskSubscription
 
@@ -10,10 +9,8 @@ class IsTaskPerformerOrOwner(BasePermission):
     """
 
     def has_permission(self, request, view):
-        user_id = request.user.id
+        user_id = request.user_id
         task_id = view.kwargs.get('pk')
-
-        print(task_id)
 
         if request.method in ['GET', 'POST', 'HEAD', 'OPTIONS']:
             return True
@@ -23,8 +20,6 @@ class IsTaskPerformerOrOwner(BasePermission):
             user_id=user_id,
             is_subscribed=True
         ).values_list('role', flat=True)
-
-        print(task_subscription)
 
         if "Owner" in task_subscription or "Performer" in task_subscription:
             return True
@@ -38,7 +33,7 @@ class IsUserOwnerOrEditorOfProject(BasePermission):
     """
 
     def has_permission(self, request, view):
-        user_id = request.user.id
+        user_id = request.user_id
         project_id = request.data.get('project')
 
         if not project_id:
