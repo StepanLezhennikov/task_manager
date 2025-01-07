@@ -33,7 +33,7 @@ class NotificationService:
         NotificationService.send_email.apply_async(args=[subject, message, recipient_list], countdown=countdown, queue='default')
 
     def send_deadile_notification_after_changing_deadline(task_id, task_deadline, recipient_list):
-        NotificationService.remove_mismatched_deadline_tasks(task_id, task_deadline)
+        NotificationService.remove_deadline_tasks(task_id, task_deadline)
         NotificationService.send_deadile_notification(task_id, task_deadline, recipient_list)
 
     @shared_task
@@ -71,7 +71,7 @@ class NotificationService:
 
         return results
 
-    def remove_mismatched_deadline_tasks(task_id, task_deadline):
+    def remove_deadline_tasks(task_id, non_matching_task_deadline=False, matching_task_deadline=False):
         inspect = app.control.inspect()
         scheduled_tasks = inspect.scheduled()
 
@@ -88,7 +88,7 @@ class NotificationService:
                             deadline_str = task_name.split("Deadline: ")[1]
                             task_deadline_parsed = parse(deadline_str)
 
-                            if task_deadline_parsed != task_deadline:
+                            if (non_matching_task_deadline and task_deadline_parsed != non_matching_task_deadline) or (matching_task_deadline and task_deadline_parsed == matching_task_deadline):
                                 task_to_revoke = request.get("id")
                                 print(f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline_parsed})")
                                 app.control.revoke(task_to_revoke)

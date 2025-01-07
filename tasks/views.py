@@ -32,6 +32,16 @@ class TaskViewSet(viewsets.ModelViewSet):
 
         NotificationService.send_deadile_notification(task.id, task.deadline, ['stepanlezennikov@gmail.com'])
 
+    def perform_destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        try:
+            NotificationService.remove_deadline_tasks(instance.id, matching_task_deadline=instance.deadline)
+        except Exception as e:
+            print(f"Failed to remove Celery tasks for task ID: {instance.id}. Error: {str(e)}")
+
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class UpdateTaskDeadlineView(APIView):
     permission_classes = [IsTaskPerformerOrOwner]
