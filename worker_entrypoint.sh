@@ -14,4 +14,4 @@ done
 
 
 chmod +x task_manager/celery_app.py
-exec celery -A task_manager worker --loglevel=info --concurrency=1 -E
+exec celery -A task_manager worker --loglevel=info --concurrency=1 -E -Q default

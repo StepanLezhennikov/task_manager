@@ -8,6 +8,7 @@ from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
 from .permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
 from .services import TaskService
 from .filters import TaskFilter
+from notifications.services import NotificationService
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -21,7 +22,6 @@ class TaskViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject]
 
     def perform_create(self, serializer):
-        # Sending message with Celery
         task = serializer.save()
         TaskSubscription.objects.create(
             task=task,
@@ -29,6 +29,8 @@ class TaskViewSet(viewsets.ModelViewSet):
             role="Owner",
             is_subscribed=True
         )
+
+        NotificationService.send_deadile_notification(task.id, task.deadline, ['stepanlezennikov@gmail.com'])
 
 
 class UpdateTaskDeadlineView(APIView):
@@ -39,6 +41,7 @@ class UpdateTaskDeadlineView(APIView):
 
         result = TaskService.update_deadline(pk, request.data)
         if result.status == "success":
+            NotificationService.send_deadile_notification_after_changing_deadline(pk, result.deadline, ['stepanlezennikov@gmail.com']) # Change it later
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)
 
