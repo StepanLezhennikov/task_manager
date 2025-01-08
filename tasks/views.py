@@ -9,6 +9,9 @@ from .permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
 from .services import TaskService
 from .filters import TaskFilter
 from notifications.services import NotificationService
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TaskViewSet(viewsets.ModelViewSet):
@@ -37,7 +40,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         try:
             NotificationService.remove_deadline_tasks(instance.id, matching_task_deadline=instance.deadline)
         except Exception as e:
-            print(f"Failed to remove Celery tasks for task ID: {instance.id}. Error: {str(e)}")
+            logger.error(f"Failed to remove Celery tasks for task ID: {instance.id}. Error: {str(e)}")
 
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -5,16 +5,21 @@ from celery import shared_task
 from task_manager.settings import SEND_MAIL_API_KEY, SEND_MAIL_API_URL, FROM_EMAIL
 import requests
 from task_manager.celery_app import app
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class NotificationService:
-    def send_invite_email(from_user_email, project_name, recipient_list):
+    @classmethod
+    def send_invite_email(cls, from_user_email, project_name, recipient_list):
         subject = f"You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
         recipient_list = ['stepanlezennikov@gmail.com']
-        NotificationService.send_email.delay(subject, message, recipient_list)
+        cls.send_email.delay(subject, message, recipient_list)
 
-    def send_deadile_notification(task_id, task_deadline, recipient_list):
+    @classmethod
+    def send_deadile_notification(cls, task_id, task_deadline, recipient_list):
         if not isinstance(task_deadline, datetime):
             try:
                 task_deadline = parse(task_deadline)
@@ -30,11 +35,12 @@ class NotificationService:
         countdown = int((time_until_deadline - timedelta(hours=1)).total_seconds())
         if countdown <= 0:
             countdown = 0
-        NotificationService.send_email.apply_async(args=[subject, message, recipient_list], countdown=countdown, queue='default')
+        cls.send_email.apply_async(args=[subject, message, recipient_list], countdown=countdown, queue='default')
 
-    def send_deadile_notification_after_changing_deadline(task_id, task_deadline, recipient_list):
-        NotificationService.remove_deadline_tasks(task_id, task_deadline)
-        NotificationService.send_deadile_notification(task_id, task_deadline, recipient_list)
+    @classmethod
+    def send_deadile_notification_after_changing_deadline(cls, task_id, task_deadline, recipient_list):
+        cls.remove_deadline_tasks(task_id, task_deadline)
+        cls.send_deadile_notification(task_id, task_deadline, recipient_list)
 
     @shared_task
     def send_email(subject, message, recipient_list):
@@ -71,11 +77,11 @@ class NotificationService:
 
         return results
 
+    @staticmethod
     def remove_deadline_tasks(task_id, non_matching_task_deadline=False, matching_task_deadline=False):
         inspect = app.control.inspect()
         scheduled_tasks = inspect.scheduled()
 
-        print("Checking for tasks to remove...")
         if scheduled_tasks:
             for tasks in scheduled_tasks.values():
                 for task in tasks:
@@ -90,9 +96,9 @@ class NotificationService:
 
                             if (non_matching_task_deadline and task_deadline_parsed != non_matching_task_deadline) or (matching_task_deadline and task_deadline_parsed == matching_task_deadline):
                                 task_to_revoke = request.get("id")
-                                print(f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline_parsed})")
+                                logger.info(f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline_parsed})")
                                 app.control.revoke(task_to_revoke)
                         except (IndexError, ValueError) as e:
-                            print(f"Failed to parse deadline for task: {task_name}. Error: {str(e)}")
+                            logger.error(f"Failed to parse deadline for task: {task_name}. Error: {str(e)}")
         else:
-            print("No scheduled tasks found.")
+            logger.error("No scheduled tasks found.")
