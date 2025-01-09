@@ -23,6 +23,7 @@ redis = "^5.2.1"
 django-celery-results = "^2.5.1"
 requests = "^2.32.3"
 mypy = "^1.14.1"
+black = "^24.10.0"
 
 
 [build-system]
