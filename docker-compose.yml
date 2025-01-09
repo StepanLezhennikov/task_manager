@@ -15,7 +15,7 @@ services:
       - app-network
 
   task_manager:
-    image: task_manager
+    build: .
     ports:
       - "8000:8000"
     depends_on:

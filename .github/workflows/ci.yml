@@ -9,9 +9,5 @@ jobs:
     name: Run Black
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: psf/black@stable
-        with:
-          options: "--check --verbose"
-          src: "./src"
-          use_pyproject: true
+      - name: Black Check
+        uses: jpetrucciani/black-check@24.10.0
