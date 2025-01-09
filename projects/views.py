@@ -5,9 +5,14 @@ from .models import Project, ProjectUser
 from .serializers import ProjectSerializer, ProjectUserSerializer
 from .services import ProjectService
 from .permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
+from notifications.services import NotificationService
+
+class BaseProjectViewSet(viewsets.ModelViewSet):
+    def has_access_to_project(self, user_id, project_id):
+        return ProjectUser.objects.filter(user_id=user_id, project_id=project_id).exists()
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
+class ProjectViewSet(BaseProjectViewSet):
     serializer_class = ProjectSerializer
     permission_classes = [IsProjectOwnerOrReadOnly]
 
@@ -32,10 +37,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
         )
 
 
-class ProjectUserViewSet(viewsets.ModelViewSet):
+class ProjectUserViewSet(BaseProjectViewSet):
     queryset = ProjectUser.objects.all()
     serializer_class = ProjectUserSerializer
     permission_classes = [IsProjectUserOwnerOrReader]
+
 
     def get_queryset(self):
         """
@@ -51,29 +57,22 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
 
         added_user_id = kwargs.get('user_id')
         project_id = request.data.get('project')
-        user_email = "example@gmail.com"  # В будущем интегрировать с микросервисом аутентификации
-        role = request.data.get('role')
 
-        if not added_user_id:
-            return Response(
-                {"error": "added_user_id is required in the URL."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-
-        try:
-            owner_id = ProjectUser.objects.get(project=project_id, role="owner").user_id
-        except :
+        project_name = ProjectService.get_project_name_by_id(project_id)
+        if not project_name:
             return Response(
                 {"error": "Project does not exist or you have no access to this project."},
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        if owner_id != request.user_id:
+        user_email = "example@gmail.com"  # В будущем интегрировать с микросервисом аутентификации
+        role = request.data.get('role')
+
+        if not self.has_access_to_project(request.user_id, project_id):
             return Response(
-                {"error": "Only the project owner can add users."},
+                {"error": "You do not have access to this project."},
                 status=status.HTTP_403_FORBIDDEN
             )
-
 
         user_data = {
             "user_id": added_user_id,
@@ -82,10 +81,10 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
             "role": role
         }
 
-
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
+            NotificationService.send_invite_email(from_user_email=request.user_email, project_name=project_name, recipient_list=["stepanlezennikov@gmail.com"]) # Change email later
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
