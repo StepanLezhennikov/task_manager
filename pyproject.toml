@@ -24,6 +24,7 @@ django-celery-results = "^2.5.1"
 requests = "^2.32.3"
 mypy = "^1.14.1"
 black = "^24.10.0"
+django-stubs = "^5.1.1"
 
 
 [build-system]
