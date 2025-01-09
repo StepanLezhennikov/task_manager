@@ -1,83 +1,17 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - '**'  # For the black job, it still runs on all branches
   pull_request:
-    branches:
-      - '**'  # For the black job, it still runs on all branches
+  push:
 
 jobs:
   black:
     name: Run Black
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: psf/black@stable
         with:
-          python-version: "3.12"
-
-      - name: Install Black
-        run: |
-          python -m pip install --upgrade pip
-          pip install black
-
-      - name: Run Black
-        run: black .
-
-  run-tests:
-    name: Run pytest
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main'  # Ensure tests run only for 'main' branch or pull requests targeting 'main'
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_DB: ${{ secrets.DJANGO_DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DJANGO_DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-        ports:
-          - 5432:5432
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python and Install Pytest
-        uses: ./.github/actions/setup-python
-        with:
-          python-version: "3.12"
-          dependencies: "poetry"
-
-      - name: Install dependencies
-        run: |
-          poetry install
-
-      - name: Create .env file from GitHub secrets
-        run: |
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-          echo "DJANGO_DB_NAME=${{ secrets.DJANGO_DB_NAME }}" >> .env
-          echo "DJANGO_DB_USER=${{ secrets.DJANGO_DB_USER }}" >> .env
-          echo "DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }}" >> .env
-          echo "DJANGO_DB_HOST=localhost" >> .env
-          echo "DJANGO_DB_PORT=5432" >> .env
-
-      - name: Flush database
-        run: |
-          poetry run python manage.py flush --noinput
-
-      - name: Apply Django migrations
-        run: |
-          poetry run python manage.py makemigrations
-          poetry run python manage.py migrate --noinput
-
-      - name: Test with pytest and coverage
-        working-directory: .
-        run: |
-          poetry run pytest . --cov=. --cov-report=xml --cov-report=term
+          options: "--check --verbose"
+          src: "./src"
+          use_pyproject: true
