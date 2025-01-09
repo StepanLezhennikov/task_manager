@@ -11,3 +11,17 @@ jobs:
     steps:
       - name: Black Check
         uses: jpetrucciani/black-check@24.10.0
+
+  mypy:
+    runs-on: ubuntu-latest
+    name: Mypy Check
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Mypy
+        uses: jashparekh/mypy-action@v2
+        with:
+          path: '.'
+          mypy_version: '1.14.1'
+          mypy_options: '--verbose'
+          mypy_config_file: 'mypy.ini'
