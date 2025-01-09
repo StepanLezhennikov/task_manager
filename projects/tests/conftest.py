@@ -17,7 +17,7 @@ def project():
     return Project.objects.create(
         name="Test Project",
         description="Test Description",
-        logo_url="http://example.com/logo.png"
+        logo_url="http://example.com/logo.png",
     )
 
 
@@ -28,7 +28,7 @@ def project_user(project):
         project=project,
         user_id=1,
         user_email="stepanlezennikov@gmail.com",
-        role="editor"
+        role="editor",
     )
 
 
@@ -38,15 +38,11 @@ def project_data():
     return {
         "name": "Test Project",
         "description": "Test Description",
-        "logo_url": "http://example.com/logo.png"
+        "logo_url": "http://example.com/logo.png",
     }
 
 
 @pytest.fixture
 def invalid_project_data():
     """Неправильные данные для создания проекта через API."""
-    return {
-        "name": "",
-        "description": "Test Description",
-        "logo_url": "INVALID URL"
-    }
+    return {"name": "", "description": "Test Description", "logo_url": "INVALID URL"}

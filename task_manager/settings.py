@@ -34,9 +34,9 @@ ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
 AUTH_USER_MODEL = "auth.User"
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 3
+    "DEFAULT_FILTER_BACKENDS": ["django_filters.rest_framework.DjangoFilterBackend"],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
+    "PAGE_SIZE": 3,
 }
 
 # Application definition
@@ -52,9 +52,8 @@ INSTALLED_APPS = [
     "tasks",
     "rest_framework",
     "django_filters",
-    'django_celery_results',
+    "django_celery_results",
 ]
-
 
 
 MIDDLEWARE = [
@@ -65,7 +64,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'middleware.token_middleware.TokenMiddleware',
+    "middleware.token_middleware.TokenMiddleware",
 ]
 
 ROOT_URLCONF = "task_manager.urls"
@@ -145,10 +144,10 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
 CELERY_ROUTES = {
-    'notifications.services.send_email': {'queue': 'default'},
+    "notifications.services.send_email": {"queue": "default"},
 }
 
 

@@ -14,10 +14,11 @@ class Task(models.Model):
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
-    deadline = models.DateTimeField(blank=True, null=True, validators=[validate_deadline_in_future])
+    deadline = models.DateTimeField(
+        blank=True, null=True, validators=[validate_deadline_in_future]
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     def __str__(self):
         return self.title

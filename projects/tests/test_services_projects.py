@@ -8,8 +8,8 @@ def test_get_project_users(project, project_user):
     """Test retrieving the list of users in a project."""
     users = ProjectService.get_project_users(project.id)
     assert len(users) == 1
-    assert users[0]['user_id'] == project_user.user_id
-    assert users[0]['role'] == project_user.role
+    assert users[0]["user_id"] == project_user.user_id
+    assert users[0]["role"] == project_user.role
 
 
 @pytest.mark.django_db
@@ -38,15 +38,12 @@ def test_get_project_users_multiple(project, project_user):
     """Test retrieving multiple users in a project."""
 
     second_user = ProjectUser.objects.create(
-        project=project,
-        user_id=2,
-        user_email="second@example.com",
-        role="owner"
+        project=project, user_id=2, user_email="second@example.com", role="owner"
     )
 
     users = ProjectService.get_project_users(project.id)
 
     assert len(users) == 2
-    user_ids = {user['user_id'] for user in users}
+    user_ids = {user["user_id"] for user in users}
     assert project_user.user_id in user_ids
     assert second_user.user_id in user_ids
