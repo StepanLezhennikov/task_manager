@@ -9,6 +9,10 @@ jobs:
     name: Run Black
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
       - name: Black Check
         uses: jpetrucciani/black-check@24.10.0
 
@@ -16,6 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Mypy Check
     steps:
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Run Mypy
