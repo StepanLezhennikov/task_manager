@@ -65,8 +65,8 @@ jobs:
           DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
           DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
           DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_PORT: 5432
+          DJANGO_DB_HOST: ${{ secrets.DJANGO_DB_HOST }}
+          DJANGO_DB_PORT: ${{ secrets.DJANGO_DB_PORT }}
         run: |
           poetry run python manage.py migrate --noinput
 
