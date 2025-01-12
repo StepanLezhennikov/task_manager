@@ -58,6 +58,7 @@ jobs:
 
       - name: Install dependencies
         uses: snok/install-poetry@v1
+        run: poetry install --no-interaction --no-root
 
       - name: Apply Django migrations
         env:
