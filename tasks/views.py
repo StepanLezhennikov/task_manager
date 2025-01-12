@@ -67,3 +67,11 @@ class UpdateTaskDeadlineView(APIView):
 class TaskSubscriptionViewSet(viewsets.ModelViewSet):
     queryset = TaskSubscription.objects.all()
     serializer_class = TaskSubscriptionSerializer
+
+
+def calculate_sum(a, b):
+    return a + b
+
+
+result = calculate_sum(5, "10")  # Mixing int and str types
+print(result)
