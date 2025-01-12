@@ -31,3 +31,46 @@ jobs:
         with:
           linter: ruff
           args: '. --config pyproject.toml'
+
+  run-tests:
+    name: Run pytest
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_DB: ${{ secrets.DJANGO_DB_NAME }}
+          POSTGRES_USER: ${{ secrets.DJANGO_DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Python and Install Pytest
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.3"
+          dependencies: "poetry"
+
+      - name: Install dependencies
+        uses: snok/install-poetry@v1
+
+      - name: Apply Django migrations
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
+          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_PORT: 5432
+        run: |
+          poetry run python manage.py migrate --noinput
+
+      - name: Test with pytest and coverage
+        working-directory: .
+        run: |
+          poetry run pytest . --cov=. --cov-report=xml --cov-report=term

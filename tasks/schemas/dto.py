@@ -6,5 +6,5 @@ from datetime import datetime
 @dataclass
 class TaskDeadlineChanged:
     status: Literal["success", "error"]
-    deadline: datetime = None
-    error: str = None
+    deadline: datetime | None
+    error: str | None
