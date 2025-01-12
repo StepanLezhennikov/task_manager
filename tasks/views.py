@@ -58,7 +58,7 @@ class UpdateTaskDeadlineView(APIView):
         result = TaskService.update_deadline(pk, request.data)
         if result.status == "success":
             NotificationService.send_deadile_notification_after_changing_deadline(
-                pk, result.deadline, ["stepanlezennikov@gmail.com"]
+                pk, result.deadline, [self.request.user_email]
             )  # Change it later
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)
