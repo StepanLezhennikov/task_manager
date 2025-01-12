@@ -1,6 +1,6 @@
 import pytest
 from projects.services import ProjectService
-from projects.models import ProjectUser, Project
+from projects.models import ProjectUser
 
 
 @pytest.mark.django_db

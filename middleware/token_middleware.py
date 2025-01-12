@@ -1,5 +1,4 @@
 from django.utils.deprecation import MiddlewareMixin
-from django.conf import settings
 
 
 class TokenMiddleware(MiddlewareMixin):

@@ -1,5 +1,5 @@
 from projects.models import ProjectUser, Project
-from projects.serializers import ProjectSerializer, GetProjectUserSerializer
+from projects.serializers import GetProjectUserSerializer
 
 
 class ProjectService:

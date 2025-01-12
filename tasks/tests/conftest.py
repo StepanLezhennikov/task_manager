@@ -87,4 +87,4 @@ def task_data_filters(project):
             created_at=now - timedelta(days=2),
         ),
     ]
-    return Task.objects.all()
+    return tasks

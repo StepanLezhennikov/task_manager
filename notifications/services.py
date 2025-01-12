@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class NotificationService:
     @classmethod
     def send_invite_email(cls, from_user_email, project_name, recipient_list):
-        subject = f"You have been added to a project"
+        subject = "You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
         recipient_list = ["stepanlezennikov@gmail.com"]
         cls.send_email.delay(subject, message, recipient_list)

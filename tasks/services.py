@@ -12,5 +12,5 @@ class TaskService:
             return TaskDeadlineChanged(status="success", deadline=data["deadline"])
         except Task.DoesNotExist:
             return TaskDeadlineChanged(status="error", error="Incorrect task Id")
-        except:
+        except Exception:
             return TaskDeadlineChanged(status="error", error="Incorrect deadline")
