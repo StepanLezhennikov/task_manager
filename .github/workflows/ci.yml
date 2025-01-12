@@ -9,27 +9,25 @@ jobs:
     name: Run Black
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12.3
         uses: actions/setup-python@v4
         with:
           python-version: '3.12.3'
       - name: Black Check
         uses: jpetrucciani/black-check@24.10.0
 
-  mypy:
+  ruff:
     runs-on: ubuntu-latest
-    name: Mypy Check
+    name: Ruff Check
     steps:
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12.3
         uses: actions/setup-python@v4
         with:
           python-version: '3.12.3'
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Run Mypy
-        uses: jashparekh/mypy-action@v2
+      - name: Run Ruff
+        uses: wearerequired/lint-action@v2
         with:
-          path: '.'
-          mypy_version: '1.14.1'
-          mypy_options: '--verbose'
-          mypy_config_file: 'mypy.ini'
+          linter: ruff
+          args: '. --config pyproject.toml'
