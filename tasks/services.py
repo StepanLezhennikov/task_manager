@@ -1,17 +1,23 @@
-from tasks.schemas.dto import TaskDeadlineChanged
+from datetime import datetime
+
+from tasks.schemas.dto import TaskDeadlineChangedResponse
 
 from .models import Task
 
 
 class TaskService:
     @staticmethod
-    def update_deadline(pk: int, data: TaskDeadlineChanged) -> TaskDeadlineChanged:
+    def update_deadline(pk: int, deadline: datetime) -> TaskDeadlineChangedResponse:
         try:
             task = Task.objects.get(pk=pk)
-            task.deadline = data.deadline
+            task.deadline = deadline
             task.save()
-            return TaskDeadlineChanged(status="success", deadline=data.deadline)
+            return TaskDeadlineChangedResponse(status="success", deadline=deadline)
         except Task.DoesNotExist:
-            return TaskDeadlineChanged(status="error", error="Incorrect task Id")
+            return TaskDeadlineChangedResponse(
+                status="error", error="Incorrect task Id"
+            )
         except Exception:
-            return TaskDeadlineChanged(status="error", error="Incorrect deadline")
+            return TaskDeadlineChangedResponse(
+                status="error", error="Incorrect deadline"
+            )

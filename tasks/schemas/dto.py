@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class TaskDeadlineChanged:
+class TaskDeadlineChangedResponse:
     status: Literal["success", "error"]
     deadline: Optional[datetime] = None
     error: Optional[str] = None
