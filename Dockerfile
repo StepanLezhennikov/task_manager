@@ -11,28 +11,37 @@ RUN apt-get update && apt-get install -y \
 
 COPY pyproject.toml poetry.lock ./
 
-RUN pip install --upgrade pip && pip install poetry && \
+RUN pip install --upgrade pip && pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev
+    poetry install --no-root --verbose
 
 FROM python:3.12-alpine
 
-WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED 1
 
 RUN apk add --no-cache bash gcc libpq-dev
-COPY --from=builder /app .
 
-RUN pip install --upgrade pip && pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+WORKDIR /app
+
+COPY --from=builder /app /app
+
+RUN pip install --no-cache-dir poetry
+
+RUN poetry config virtualenvs.create false && \
+    poetry install --only main --no-root --verbose
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
+    chown -R appuser:appgroup /app
 
 COPY entrypoint.sh /entrypoint.sh
 COPY worker_entrypoint.sh /worker_entrypoint.sh
 
 RUN chmod +x /entrypoint.sh /worker_entrypoint.sh
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+RUN chown -R appuser:appgroup /entrypoint.sh /worker_entrypoint.sh
+
+USER appuser
 
 EXPOSE 8000
 
