@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import requests
 from celery import shared_task
@@ -22,14 +22,6 @@ class NotificationService:
 
     @classmethod
     def send_deadile_notification(cls, task_id, task_deadline, recipient_list):
-        if not isinstance(task_deadline, datetime):
-            try:
-                task_deadline = parse(task_deadline)
-            except (ValueError, TypeError):
-                raise ValueError(
-                    f"task_deadline must be a datetime object or a valid datetime string, got {task_deadline}"
-                )
-
         subject = "Task Deadline Notification"
         message = f"Task {task_id} deadline is approaching. Deadline: {task_deadline}"
 

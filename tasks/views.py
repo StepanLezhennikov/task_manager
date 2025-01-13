@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import status, viewsets
+from dateutil.parser import parse
 from rest_framework.views import APIView
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
@@ -61,8 +62,8 @@ class UpdateTaskDeadlineView(APIView):
         result = TaskService.update_deadline(pk, request.data)
         if result.status == "success":
             NotificationService.send_deadile_notification_after_changing_deadline(
-                pk, result.deadline, [self.request.user_email]
-            )  # Change it later
+                pk, parse(result.deadline), [self.request.user_email]
+            )
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)
 
