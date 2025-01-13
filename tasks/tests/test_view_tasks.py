@@ -1,5 +1,6 @@
 import pytest
 from rest_framework import status
+
 from tasks.models import Task, TaskSubscription
 from tasks.tests.conftest import TASKS_URL, TASK_SUBSCRIPTIONS_URL
 

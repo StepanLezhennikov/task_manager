@@ -1,5 +1,6 @@
-from .models import Task
 from tasks.schemas.dto import TaskDeadlineChanged
+
+from .models import Task
 
 
 class TaskService:

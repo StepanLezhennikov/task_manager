@@ -1,4 +1,5 @@
 import pytest
+
 from tasks.models import Task
 from tasks.services import TaskService
 

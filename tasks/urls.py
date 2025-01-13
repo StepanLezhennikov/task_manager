@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from tasks.views import TaskSubscriptionViewSet, TaskViewSet, UpdateTaskDeadlineView
+from tasks.views import TaskViewSet, UpdateTaskDeadlineView, TaskSubscriptionViewSet
 
 router = DefaultRouter()
 router.register(r"tasks", TaskViewSet)

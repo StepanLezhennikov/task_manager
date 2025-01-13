@@ -1,9 +1,11 @@
-import pytest
 from datetime import timedelta
+
+import pytest
 from django.utils import timezone
 from rest_framework.test import APIClient
-from projects.models import Project
+
 from tasks.models import Task
+from projects.models import Project
 
 TASKS_URL = "/api/tasks/"
 TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"

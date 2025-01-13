@@ -1,4 +1,4 @@
-from projects.models import ProjectUser, Project
+from projects.models import Project, ProjectUser
 from projects.serializers import GetProjectUserSerializer
 
 

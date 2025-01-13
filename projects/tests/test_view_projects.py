@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
-from projects.models import ProjectUser, Project
+
+from projects.models import Project, ProjectUser
 
 PROJECTS_URL = "/api/projects/"
 PROJECT_USERS_URL = "/api/project_users/"

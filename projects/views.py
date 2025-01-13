@@ -1,11 +1,13 @@
-from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework import status, viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
+
+from notifications.services import NotificationService
+
 from .models import Project, ProjectUser
-from .serializers import ProjectSerializer, ProjectUserSerializer
 from .services import ProjectService
 from .permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
-from notifications.services import NotificationService
+from .serializers import ProjectSerializer, ProjectUserSerializer
 
 
 class BaseProjectViewSet(viewsets.ModelViewSet):

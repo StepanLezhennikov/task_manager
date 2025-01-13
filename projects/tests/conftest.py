@@ -1,5 +1,6 @@
 import pytest
 from rest_framework.test import APIClient
+
 from projects.models import Project, ProjectUser
 
 

@@ -1,6 +1,8 @@
 from django.db import models
-from .validators import validate_deadline_in_future
+
 from projects.models import Project
+
+from .validators import validate_deadline_in_future
 
 
 class Task(models.Model):

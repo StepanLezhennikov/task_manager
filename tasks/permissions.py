@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission
+
+from tasks.models import Task, TaskSubscription
 from projects.models import ProjectUser
-from tasks.models import TaskSubscription, Task
 
 
 class IsTaskPerformerOrOwner(BasePermission):

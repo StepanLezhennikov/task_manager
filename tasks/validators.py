@@ -1,5 +1,5 @@
-from django.core.exceptions import ValidationError
 from django.utils.timezone import now
+from django.core.exceptions import ValidationError
 
 
 def validate_deadline_in_future(value):
