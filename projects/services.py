@@ -1,5 +1,5 @@
 from projects.models import ProjectUser, Project
-from projects.serializers import ProjectSerializer, GetProjectUserSerializer
+from projects.serializers import GetProjectUserSerializer
 
 
 class ProjectService:
@@ -15,4 +15,5 @@ class ProjectService:
             project_name = Project.objects.get(id=project_id).name
         except Project.DoesNotExist:
             return None
+
         return project_name

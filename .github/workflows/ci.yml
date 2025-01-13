@@ -1,39 +1,40 @@
 name: CI
 
 on:
-  push:
-    branches:
-      - '**'  # For the black job, it still runs on all branches
   pull_request:
-    branches:
-      - '**'  # For the black job, it still runs on all branches
+  push:
 
 jobs:
   black:
     name: Run Black
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Python
+      - name: Set up Python 3.12.3
         uses: actions/setup-python@v4
         with:
-          python-version: "3.12"
+          python-version: '3.12.3'
+      - name: Black Check
+        uses: jpetrucciani/black-check@24.10.0
 
-      - name: Install Black
-        run: |
-          python -m pip install --upgrade pip
-          pip install black
-
-      - name: Run Black
-        run: black .
+  ruff:
+    runs-on: ubuntu-latest
+    name: Ruff Check
+    steps:
+      - name: Set up Python 3.12.3
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.3'
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Run Ruff
+        uses: wearerequired/lint-action@v2
+        with:
+          linter: ruff
+          args: '. --config pyproject.toml'
 
   run-tests:
     name: Run pytest
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' || github.event.pull_request.base.ref == 'main'  # Ensure tests run only for 'main' branch or pull requests targeting 'main'
 
     services:
       postgres:
@@ -50,34 +51,38 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Python and Install Pytest
-        uses: ./.github/actions/setup-python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.3"
           dependencies: "poetry"
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+
       - name: Install dependencies
-        run: |
-          poetry install
-
-      - name: Create .env file from GitHub secrets
-        run: |
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
-          echo "DJANGO_DB_NAME=${{ secrets.DJANGO_DB_NAME }}" >> .env
-          echo "DJANGO_DB_USER=${{ secrets.DJANGO_DB_USER }}" >> .env
-          echo "DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }}" >> .env
-          echo "DJANGO_DB_HOST=localhost" >> .env
-          echo "DJANGO_DB_PORT=5432" >> .env
-
-      - name: Flush database
-        run: |
-          poetry run python manage.py flush --noinput
+        run: poetry install --no-interaction --no-root --verbose
 
       - name: Apply Django migrations
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
+          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_PORT: 5432
         run: |
-          poetry run python manage.py makemigrations
           poetry run python manage.py migrate --noinput
 
       - name: Test with pytest and coverage
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
+          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
+          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_PORT: 5432
         working-directory: .
         run: |
           poetry run pytest . --cov=. --cov-report=xml --cov-report=term

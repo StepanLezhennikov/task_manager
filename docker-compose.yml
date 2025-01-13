@@ -1,34 +1,32 @@
-version: '3.8'
-
 services:
   db:
-    image: postgres:latest
+    image: postgres:15
     volumes:
       - db_data:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: task_manager
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "postgres", "-d", "task_manager" ]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
     ports:
       - "5435:5432"
     networks:
       - app-network
 
   task_manager:
-    image: task_manager
+    build: .
     ports:
       - "8000:8000"
     depends_on:
-      - db
-      - redis
-    environment:
-      - DJANGO_DB_NAME=${DJANGO_DB_NAME}
-      - DJANGO_DB_USER=${DJANGO_DB_USER}
-      - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
-      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
-      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
-      - CELERY_BROKER_URL:"redis://redis:6379/0"
-      - CELERY_RESULT_BACKEND:"redis://redis:6379/0"
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
     networks:
@@ -38,25 +36,23 @@ services:
 
   celery:
     build: .
-    image: task_manager
     depends_on:
-      - redis
-    environment:
-      - DJANGO_DB_NAME=${DJANGO_DB_NAME}
-      - DJANGO_DB_USER=${DJANGO_DB_USER}
-      - DJANGO_DB_PASSWORD=${DJANGO_DB_PASSWORD}
-      - DJANGO_DB_HOST=${DJANGO_DB_HOST}
-      - DJANGO_DB_PORT=${DJANGO_DB_PORT}
-      - CELERY_BROKER_URL:redis://redis:6379/0
-      - CELERY_RESULT_BACKEND:redis://redis:6379/0
+      redis:
+        condition: service_healthy
     volumes:
       - .:/app
     networks:
       - app-network
+    env_file: .env
     entrypoint: "/worker_entrypoint.sh"
 
   redis:
-    image: redis:latest
+    image: redis:7.4-alpine
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
     ports:
       - "6379:6379"
     networks:

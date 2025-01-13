@@ -26,7 +26,7 @@ def test_list_tasks(api_client, task_data_filters):
     """Тест списка задач через TaskViewSet."""
     response = api_client.get(TASKS_URL)
     assert response.status_code == status.HTTP_200_OK
-    assert response.data.get('count') == len(task_data_filters)
+    assert response.data.get("count") == len(task_data_filters)
 
 
 @pytest.mark.django_db
@@ -40,7 +40,9 @@ def test_update_task_deadline(api_client, task_data_views):
         deadline=task_data_views["deadline"],
     )
     updated_deadline = {"deadline": "2025-01-01T00:00:00Z"}
-    response = api_client.patch(f"/tasks/{task.pk}/deadline", data=updated_deadline, format="json")
+    response = api_client.patch(
+        f"/tasks/{task.pk}/deadline", data=updated_deadline, format="json"
+    )
     assert response.status_code == status.HTTP_200_OK
     task.refresh_from_db()
     assert task.deadline.isoformat() == "2025-01-01T00:00:00+00:00"
@@ -48,7 +50,9 @@ def test_update_task_deadline(api_client, task_data_views):
 
 @pytest.mark.django_db
 def test_update_task_deadline_invalid_task(api_client):
-    response = api_client.patch("/tasks/999/deadline", data={"deadline": "2025-01-01T00:00:00Z"})
+    response = api_client.patch(
+        "/tasks/999/deadline", data={"deadline": "2025-01-01T00:00:00Z"}
+    )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
@@ -84,6 +88,6 @@ def test_list_task_subscriptions(api_client, task_data_views):
     response = api_client.get(TASK_SUBSCRIPTIONS_URL)
     assert response.status_code == status.HTTP_200_OK
 
-    count_res = response.data.get('count')
+    count_res = response.data.get("count")
     assert count_res == 1
-    assert response.data['results'][0]["user_id"] == 1
+    assert response.data["results"][0]["user_id"] == 1

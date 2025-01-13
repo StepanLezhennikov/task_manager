@@ -8,6 +8,7 @@ from tasks.models import Task
 TASKS_URL = "/api/tasks/"
 TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"
 
+
 @pytest.fixture
 def api_client():
     return APIClient()
@@ -86,4 +87,4 @@ def task_data_filters(project):
             created_at=now - timedelta(days=2),
         ),
     ]
-    return Task.objects.all()
+    return tasks

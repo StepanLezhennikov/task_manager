@@ -4,11 +4,13 @@ from rest_framework.routers import DefaultRouter
 from tasks.views import TaskSubscriptionViewSet, TaskViewSet, UpdateTaskDeadlineView
 
 router = DefaultRouter()
-router.register(r'tasks', TaskViewSet)
-router.register(r'task_subscriptions', TaskSubscriptionViewSet)
+router.register(r"tasks", TaskViewSet)
+router.register(r"task_subscriptions", TaskSubscriptionViewSet)
 
 
 urlpatterns = [
-    path('api/', include(router.urls)),
-    path('tasks/<int:pk>/deadline', UpdateTaskDeadlineView.as_view(), name='add_deadline'),
+    path("api/", include(router.urls)),
+    path(
+        "tasks/<int:pk>/deadline", UpdateTaskDeadlineView.as_view(), name="add_deadline"
+    ),
 ]
