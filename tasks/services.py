@@ -5,12 +5,12 @@ from .models import Task
 
 class TaskService:
     @staticmethod
-    def update_deadline(pk, data):
+    def update_deadline(pk: int, data: TaskDeadlineChanged) -> TaskDeadlineChanged:
         try:
             task = Task.objects.get(pk=pk)
-            task.deadline = data["deadline"]
+            task.deadline = data.deadline
             task.save()
-            return TaskDeadlineChanged(status="success", deadline=data["deadline"])
+            return TaskDeadlineChanged(status="success", deadline=data.deadline)
         except Task.DoesNotExist:
             return TaskDeadlineChanged(status="error", error="Incorrect task Id")
         except Exception:

@@ -1,5 +1,6 @@
 import logging
-from datetime import timedelta
+from typing import List, Optional
+from datetime import datetime, timedelta
 
 import requests
 from celery import shared_task
@@ -14,14 +15,18 @@ logger = logging.getLogger(__name__)
 
 class NotificationService:
     @classmethod
-    def send_invite_email(cls, from_user_email, project_name, recipient_list):
+    def send_invite_email(
+        cls, from_user_email: str, project_name: str, recipient_list: List[str]
+    ) -> None:
         subject = "You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
         recipient_list = ["stepanlezennikov@gmail.com"]
         cls.send_email.delay(subject, message, recipient_list)
 
     @classmethod
-    def send_deadile_notification(cls, task_id, task_deadline, recipient_list):
+    def send_deadile_notification(
+        cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
+    ) -> None:
         subject = "Task Deadline Notification"
         message = f"Task {task_id} deadline is approaching. Deadline: {task_deadline}"
 
@@ -37,8 +42,8 @@ class NotificationService:
 
     @classmethod
     def send_deadile_notification_after_changing_deadline(
-        cls, task_id, task_deadline, recipient_list
-    ):
+        cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
+    ) -> None:
         cls.remove_deadline_tasks(task_id, task_deadline)
         cls.send_deadile_notification(task_id, task_deadline, recipient_list)
 
@@ -79,7 +84,9 @@ class NotificationService:
 
     @staticmethod
     def remove_deadline_tasks(
-        task_id, non_matching_task_deadline=False, matching_task_deadline=False
+        task_id: int,
+        non_matching_task_deadline: Optional[datetime] = False,
+        matching_task_deadline: Optional[datetime] = False,
     ):
         inspect = app.control.inspect()
         scheduled_tasks = inspect.scheduled()

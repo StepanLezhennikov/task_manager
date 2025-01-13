@@ -11,7 +11,7 @@ from .serializers import ProjectSerializer, ProjectUserSerializer
 
 
 class BaseProjectViewSet(viewsets.ModelViewSet):
-    def has_access_to_project(self, user_id, project_id):
+    def has_access_to_project(self, user_id: int, project_id: int) -> bool:
         return ProjectUser.objects.filter(
             user_id=user_id, project_id=project_id
         ).exists()
@@ -60,7 +60,7 @@ class ProjectUserViewSet(BaseProjectViewSet):
         return ProjectUser.objects.filter(project_id__in=project_ids)
 
     @action(detail=True, methods=["POST"], name="add-user-to-project")
-    def add_user_to_project(self, request, *args, **kwargs):
+    def add_user_to_project(self, request, *args, **kwargs) -> Response:
         """Добавление пользователя в проект"""
 
         added_user_id = kwargs.get("user_id")
@@ -104,7 +104,7 @@ class ProjectUserViewSet(BaseProjectViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=["GET"])
-    def get_project_users(self, request, *args, **kwargs):
+    def get_project_users(self, request, *args, **kwargs) -> Response:
         """Просмотр пользователей на проекте"""
         user_id = request.user_id
         project_id = kwargs.get("project_id")
