@@ -8,12 +8,11 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
 from tasks.models import Task, TaskSubscription
+from tasks.filters import TaskFilter
+from tasks.services import TaskService
+from tasks.permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
 from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
 from notifications.services import NotificationService
-
-from .filters import TaskFilter
-from .services import TaskService
-from .permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
 
 logger = logging.getLogger(__name__)
 

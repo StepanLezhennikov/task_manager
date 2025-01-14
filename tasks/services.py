@@ -1,8 +1,7 @@
 from datetime import datetime
 
+from tasks.models import Task
 from tasks.schemas.dto import TaskDeadlineChangedResponse
-
-from .models import Task
 
 
 class TaskService:
