@@ -1,6 +1,5 @@
 from rest_framework import serializers
 
-from tasks.models import Task
 from projects.models import Project, ProjectUser
 from tasks.serializers import TaskForProjectSerializer
 
@@ -30,19 +29,3 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ["name", "description", "logo_url", "project_users", "tasks"]
-
-    def create(self, validated_data):
-        name = validated_data.pop("name")
-        description = validated_data.pop("description", None)
-        logo_url = validated_data.pop("logo_url", None)
-
-        project = Project.objects.create(
-            name=name, description=description, logo_url=logo_url
-        )
-
-        for task in validated_data.pop("tasks", []):
-            task = Task.objects.create(project=project, **task)
-        for project_user in validated_data.pop("project_users", []):
-            project_user = ProjectUser.objects.create(project=project, **project_user)
-
-        return project

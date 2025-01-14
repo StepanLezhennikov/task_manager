@@ -32,13 +32,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         Создает проект и автоматически назначает пользователя владельцем.
         """
-        project = serializer.save()
-        ProjectUser.objects.create(
-            project=project,
-            user_id=self.request.user_id,
-            user_email=self.request.user_email,
-            role="owner",
+        validated_data = serializer.validated_data
+        user_id = self.request.user_id
+        user_email = self.request.user_email
+
+        project = ProjectService.create_project_with_users_and_tasks(
+            validated_data, user_id, user_email
         )
+
+        serializer.instance = project
+        return project
 
 
 class ProjectUserViewSet(viewsets.ModelViewSet):
