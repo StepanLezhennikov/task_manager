@@ -1,24 +1,22 @@
 from rest_framework import status, viewsets
+from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from projects.models import Project, ProjectUser
 from projects.services import ProjectService
-from projects.permissions import IsProjectOwnerOrReadOnly, IsProjectUserOwnerOrReader
+from projects.permissions import (
+    HasAccessToProject,
+    IsProjectUserOwner,
+    IsProjectUserReader,
+)
 from projects.serializers import ProjectSerializer, ProjectUserSerializer
 from notifications.services import NotificationService
 
 
-class BaseProjectViewSet(viewsets.ModelViewSet):
-    def has_access_to_project(self, user_id: int, project_id: int) -> bool:
-        return ProjectUser.objects.filter(
-            user_id=user_id, project_id=project_id
-        ).exists()
-
-
-class ProjectViewSet(BaseProjectViewSet):
+class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permission_classes = [IsProjectOwnerOrReadOnly]
+    permission_classes = [IsProjectUserOwner | IsProjectUserReader]
 
     def get_queryset(self):
         """
@@ -43,10 +41,10 @@ class ProjectViewSet(BaseProjectViewSet):
         )
 
 
-class ProjectUserViewSet(BaseProjectViewSet):
+class ProjectUserViewSet(viewsets.ModelViewSet):
     queryset = ProjectUser.objects.all()
     serializer_class = ProjectUserSerializer
-    permission_classes = [IsProjectUserOwnerOrReader]
+    permission_classes = [IsProjectUserOwner | IsProjectUserReader]
 
     def get_queryset(self):
         """
@@ -58,15 +56,20 @@ class ProjectUserViewSet(BaseProjectViewSet):
         )
         return ProjectUser.objects.filter(project_id__in=project_ids)
 
-    @action(detail=True, methods=["POST"], name="add-user-to-project")
+    @action(
+        detail=True,
+        methods=["POST"],
+        name="add-user-to-project",
+        permission_classes=[HasAccessToProject],
+    )
     def add_user_to_project(self, request, *args, **kwargs) -> Response:
         """Добавление пользователя в проект"""
 
         added_user_id = kwargs.get("user_id")
         project_id = request.data.get("project")
 
-        project_name = ProjectService.get_project_name_by_id(project_id)
-        if not project_name:
+        project = ProjectService.get_project_by_id(project_id)
+        if not project.name:
             return Response(
                 {
                     "error": "Project does not exist or you have no access to this project."
@@ -77,12 +80,6 @@ class ProjectUserViewSet(BaseProjectViewSet):
         user_email = "example@gmail.com"  # В будущем интегрировать с микросервисом аутентификации
         role = request.data.get("role")
 
-        if not self.has_access_to_project(request.user_id, project_id):
-            return Response(
-                {"error": "You do not have access to this project."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         user_data = {
             "user_id": added_user_id,
             "user_email": user_email,
@@ -90,12 +87,14 @@ class ProjectUserViewSet(BaseProjectViewSet):
             "role": role,
         }
 
+        self.check_object_permissions(request, project)
+
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
             NotificationService.send_invite_email(
                 from_user_email=request.user_email,
-                project_name=project_name,
+                project_name=project.name,
                 recipient_list=["stepanlezennikov@gmail.com"],
             )  # Change email later
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -108,23 +107,18 @@ class ProjectUserViewSet(BaseProjectViewSet):
         user_id = request.user_id
         project_id = kwargs.get("project_id")
 
-        if not Project.objects.filter(id=project_id).exists():
-            return Response(
-                {"error": "Project does not exist."}, status=status.HTTP_404_NOT_FOUND
-            )
+        project = get_object_or_404(Project, id=project_id)
 
         if not user_id:
             return Response(
                 {"error": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_id not in ProjectUser.objects.filter(project_id=project_id).values_list(
-            "user_id", flat=True
-        ):
+        if user_id not in project.project_users.all().values_list("user_id", flat=True):
             return Response(
                 {"error": "You do not have access to this project."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        data = ProjectService.get_project_users(user_id)
+        data = ProjectService.get_project_users(project_id)
         return Response(data, status=status.HTTP_200_OK)

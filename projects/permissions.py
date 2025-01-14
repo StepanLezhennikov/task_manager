@@ -1,15 +1,38 @@
 from rest_framework.permissions import SAFE_METHODS, BasePermission
 
+from projects.models import ProjectUser
 
-class IsProjectOwnerOrReadOnly(BasePermission):
+
+class HasAccessToProject(BasePermission):
+    """
+    Permission class to check if the user has access to the specified project.
+    """
+
     def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return obj.project_users.filter(user_id=request.user_id).exists()
+        print("HasAccessToProject запущен")
+        return ProjectUser.objects.filter(
+            user_id=request.user_id, project_id=request.data.get("project")
+        ).exists()
+
+
+class IsProjectUserReader(BasePermission):
+    """
+    Permission class to allow read-only access for project users.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        print("IsProjectUserReader запущен")
+        return (
+            request.method in SAFE_METHODS
+            and obj.project_users.filter(user_id=request.user_id).exists()
+        )
+
+
+class IsProjectUserOwner(BasePermission):
+    """
+    Permission class to allow actions only for project owners.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        print("IsProjectUserOwner запущен")
         return obj.project_users.filter(user_id=request.user_id, role="owner").exists()
-
-
-class IsProjectUserOwnerOrReader(BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in SAFE_METHODS:
-            return request.user_id == obj.user_id
-        return obj.user_id == request.user_id and obj.role == "owner"

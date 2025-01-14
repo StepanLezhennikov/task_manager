@@ -19,3 +19,7 @@ class ProjectService:
             return None
 
         return project_name
+
+    @staticmethod
+    def get_project_by_id(project_id: int) -> Project:
+        return Project.objects.get(id=project_id)
