@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from tasks.models import Task, TaskSubscription
 from tasks.filters import TaskFilter
 from tasks.services import TaskService
-from tasks.permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
+from tasks.permissions import IsTaskOwner, IsTaskPerformer, IsSafeMethodPermission
 from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
 from notifications.services import NotificationService
 
@@ -25,12 +25,15 @@ class TaskViewSet(viewsets.ModelViewSet):
     filterset_class = TaskFilter
     ordering_fields = ["title", "created_at"]
     ordering = ["-created_at"]
-    permission_classes = [IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject]
+    permission_classes = [IsSafeMethodPermission | IsTaskPerformer | IsTaskOwner]
 
     def perform_create(self, serializer):
         task = serializer.save()
         TaskSubscription.objects.create(
-            task=task, user_id=self.request.user_id, role="Owner", is_subscribed=True
+            task=task,
+            user_id=self.request.user_id,
+            role=TaskSubscription.RoleChoices.OWNER,
+            is_subscribed=True,
         )
 
         NotificationService.send_deadline_notification(
@@ -53,7 +56,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
 
 class UpdateTaskDeadlineView(APIView):
-    permission_classes = [IsTaskPerformerOrOwner]
+    permission_classes = [IsTaskOwner | IsTaskPerformer]
 
     def patch(self, request, **kwargs):
         pk = self.kwargs.get("pk")
