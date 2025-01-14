@@ -33,7 +33,7 @@ class TaskViewSet(viewsets.ModelViewSet):
             task=task, user_id=self.request.user_id, role="Owner", is_subscribed=True
         )
 
-        NotificationService.send_deadile_notification(
+        NotificationService.send_deadline_notification(
             task.id, task.deadline, ["stepanlezennikov@gmail.com"]
         )
 
@@ -61,7 +61,7 @@ class UpdateTaskDeadlineView(APIView):
 
         result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":
-            NotificationService.send_deadile_notification_after_changing_deadline(
+            NotificationService.send_deadline_notification_after_changing_deadline(
                 pk, new_deadline, [self.request.user_email]
             )
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)

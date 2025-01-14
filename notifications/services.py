@@ -23,7 +23,7 @@ class NotificationService:
         cls.send_email(subject, message, recipient_list)
 
     @classmethod
-    def send_deadile_notification(
+    def send_deadline_notification(
         cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
     ) -> None:
         subject = "Task Deadline Notification"
@@ -41,11 +41,11 @@ class NotificationService:
         )
 
     @classmethod
-    def send_deadile_notification_after_changing_deadline(
+    def send_deadline_notification_after_changing_deadline(
         cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
     ) -> None:
         cls.remove_deadline_tasks(task_id, task_deadline)
-        cls.send_deadile_notification(task_id, task_deadline, recipient_list)
+        cls.send_deadline_notification(task_id, task_deadline, recipient_list)
 
     @staticmethod
     @shared_task
