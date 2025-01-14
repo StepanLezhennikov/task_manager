@@ -19,8 +19,8 @@ class NotificationService:
     ) -> None:
         subject = "You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
+
         cls.send_email.delay(subject, message, recipient_list)
-        cls.send_email(subject, message, recipient_list)
 
     @classmethod
     def send_deadline_notification(
