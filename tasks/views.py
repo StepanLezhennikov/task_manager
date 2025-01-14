@@ -1,7 +1,7 @@
 import logging
 
 from rest_framework import status, viewsets
-from dateutil.parser import parse
+from dateutil.parser import ParserError, parse
 from rest_framework.views import APIView
 from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
@@ -60,7 +60,13 @@ class UpdateTaskDeadlineView(APIView):
 
     def patch(self, request, **kwargs):
         pk = self.kwargs.get("pk")
-        new_deadline = parse(request.data.get("deadline"))
+        try:
+            new_deadline = parse(request.data.get("deadline"))
+        except ParserError:
+            return Response(
+                {"error": "Invalid date format. Please use YYYY-MM-DD format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":
