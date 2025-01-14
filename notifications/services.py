@@ -100,23 +100,18 @@ class NotificationService:
                     celery_task_id = kwargs.get("task_id")
 
                     if task_id == celery_task_id:
-                        try:
-                            task_deadline = kwargs.get("task_deadline")
-                            if (
-                                non_matching_task_deadline
-                                and task_deadline != non_matching_task_deadline
-                            ) or (
-                                matching_task_deadline
-                                and task_deadline == matching_task_deadline
-                            ):
-                                task_to_revoke = request.get("id")
-                                logger.info(
-                                    f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline})"
-                                )
-                                app.control.revoke(task_to_revoke)
-                        except (IndexError, ValueError) as e:
-                            logger.error(
-                                f"Failed to parse deadline for task: {task_id}. Error: {str(e)}"
+                        task_deadline = kwargs.get("task_deadline")
+                        if (
+                            non_matching_task_deadline
+                            and task_deadline != non_matching_task_deadline
+                        ) or (
+                            matching_task_deadline
+                            and task_deadline == matching_task_deadline
+                        ):
+                            task_to_revoke = request.get("id")
+                            logger.info(
+                                f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline})"
                             )
+                            app.control.revoke(task_to_revoke)
         else:
             logger.error("No scheduled tasks found.")
