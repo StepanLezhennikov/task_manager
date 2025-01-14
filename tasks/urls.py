@@ -9,7 +9,7 @@ router.register(r"task_subscriptions", TaskSubscriptionViewSet)
 
 
 urlpatterns = [
-    path("api/", include(router.urls)),
+    path("api/v1/", include(router.urls)),
     path(
         "tasks/<int:pk>/deadline", UpdateTaskDeadlineView.as_view(), name="add_deadline"
     ),
