@@ -58,7 +58,7 @@ class UpdateTaskDeadlineView(APIView):
 
     def patch(self, request, **kwargs):
         pk = self.kwargs.get("pk")
-        new_deadline = parse(self.kwargs.get("new_deadline"))
+        new_deadline = parse(request.data.get("deadline"))
 
         result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":

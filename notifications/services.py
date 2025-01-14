@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 
 import requests
 from celery import shared_task
-from dateutil.parser import parse
 from django.utils.timezone import now
 
 from task_manager.settings import FROM_EMAIL, SEND_MAIL_API_KEY, SEND_MAIL_API_URL
@@ -20,8 +19,8 @@ class NotificationService:
     ) -> None:
         subject = "You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
-        recipient_list = ["stepanlezennikov@gmail.com"]
         cls.send_email.delay(subject, message, recipient_list)
+        cls.send_email(subject, message, recipient_list)
 
     @classmethod
     def send_deadile_notification(
@@ -36,6 +35,7 @@ class NotificationService:
             countdown = 0
         cls.send_email.apply_async(
             args=[subject, message, recipient_list],
+            kwargs={"task_id": task_id, "task_deadline": task_deadline},
             countdown=countdown,
             queue="default",
         )
@@ -47,8 +47,9 @@ class NotificationService:
         cls.remove_deadline_tasks(task_id, task_deadline)
         cls.send_deadile_notification(task_id, task_deadline, recipient_list)
 
+    @staticmethod
     @shared_task
-    def send_email(subject, message, recipient_list):
+    def send_email(subject, message, recipient_list, **kwargs):
         """
         Sending mail with Celery.
         """
@@ -95,29 +96,27 @@ class NotificationService:
             for tasks in scheduled_tasks.values():
                 for task in tasks:
                     request = task.get("request")
-                    args = request.get("args")
-                    task_name = args[1] if len(args) > 1 else ""
+                    kwargs = request.get("kwargs")
+                    celery_task_id = kwargs.get("task_id")
 
-                    if f"Task {task_id} deadline" in task_name:
+                    if task_id == celery_task_id:
                         try:
-                            deadline_str = task_name.split("Deadline: ")[1]
-                            task_deadline_parsed = parse(deadline_str)
-
+                            task_deadline = kwargs.get("task_deadline")
                             if (
                                 non_matching_task_deadline
-                                and task_deadline_parsed != non_matching_task_deadline
+                                and task_deadline != non_matching_task_deadline
                             ) or (
                                 matching_task_deadline
-                                and task_deadline_parsed == matching_task_deadline
+                                and task_deadline == matching_task_deadline
                             ):
                                 task_to_revoke = request.get("id")
                                 logger.info(
-                                    f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline_parsed})"
+                                    f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline})"
                                 )
                                 app.control.revoke(task_to_revoke)
                         except (IndexError, ValueError) as e:
                             logger.error(
-                                f"Failed to parse deadline for task: {task_name}. Error: {str(e)}"
+                                f"Failed to parse deadline for task: {task_id}. Error: {str(e)}"
                             )
         else:
             logger.error("No scheduled tasks found.")
