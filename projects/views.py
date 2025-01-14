@@ -54,10 +54,8 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         Возвращает список участников проекта, доступных текущему пользователю.
         """
         user_id = self.request.user_id
-        project_ids = ProjectUser.objects.filter(user_id=user_id).values_list(
-            "project_id", flat=True
-        )
-        return ProjectUser.objects.filter(project_id__in=project_ids)
+        project_users = ProjectService.get_project_users_by_user_id(user_id)
+        return project_users
 
     @action(
         detail=True,
