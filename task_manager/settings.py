@@ -145,13 +145,12 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 CELERY_ROUTES = {
     "notifications.services.send_email": {"queue": "default"},
 }
 
-
-SEND_MAIL_API_URL = "https://api.sendsay.ru/general/api/v100/json/x_1735560557940245"
-SEND_MAIL_API_KEY = "19m37LRf5dbKNGFM6JpRn_60Hw-sQo0qolkhNynWkC8CL0df5rbHLoNeFSqy3_5aaiRwc5e1grWV9K0lYPBktGxK42mhuyQEs"
-FROM_EMAIL = "stsiapan.liazhennikau@pynest.io"
+SEND_MAIL_API_URL = env("SEND_MAIL_API_URL")
+SEND_MAIL_API_KEY = env("SEND_MAIL_API_KEY")
+FROM_EMAIL = env("FROM_EMAIL")
