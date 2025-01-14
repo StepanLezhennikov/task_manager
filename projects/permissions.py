@@ -32,4 +32,6 @@ class IsProjectUserOwner(BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        return obj.project_users.filter(user_id=request.user_id, role="owner").exists()
+        return obj.project_users.filter(
+            user_id=request.user_id, role=ProjectUser.RoleChoices.OWNER
+        ).exists()

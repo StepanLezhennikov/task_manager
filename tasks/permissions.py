@@ -20,7 +20,10 @@ class IsTaskPerformerOrOwner(BasePermission):
             task_id=task_id, user_id=user_id, is_subscribed=True
         ).values_list("role", flat=True)
 
-        if "Owner" in task_subscription or "Performer" in task_subscription:
+        if (
+            TaskSubscription.RoleChoices.OWNER in task_subscription
+            or TaskSubscription.RoleChoices.PERFORMER in task_subscription
+        ):
             return True
         return False
 
@@ -41,7 +44,12 @@ class IsUserOwnerOrEditorOfProject(BasePermission):
                 return False
 
             project_user = ProjectUser.objects.filter(
-                project_id=project_id, user_id=user_id, role__in=["owner", "editor"]
+                project_id=project_id,
+                user_id=user_id,
+                role__in=[
+                    ProjectUser.RoleChoices.OWNER,
+                    ProjectUser.RoleChoices.EDITOR,
+                ],
             ).exists()
 
             if project_user:
@@ -53,7 +61,9 @@ class IsUserOwnerOrEditorOfProject(BasePermission):
             return False
 
         project_user = ProjectUser.objects.filter(
-            project_id=task.project_id, user_id=user_id, role__in=["owner", "editor"]
+            project_id=task.project_id,
+            user_id=user_id,
+            role__in=[ProjectUser.RoleChoices.OWNER, ProjectUser.RoleChoices.EDITOR],
         ).exists()
 
         if project_user:
