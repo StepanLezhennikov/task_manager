@@ -42,14 +42,9 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            NotificationService.remove_deadline_tasks(
-                instance.id, matching_task_deadline=instance.deadline
-            )
-        except Exception as e:
-            logger.error(
-                f"Failed to remove Celery tasks for task ID: {instance.id}. Error: {str(e)}"
-            )
+        NotificationService.remove_deadline_tasks(
+            instance.id, matching_task_deadline=instance.deadline
+        )
 
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
