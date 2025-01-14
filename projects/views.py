@@ -23,10 +23,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         Возвращает только проекты, к которым пользователь имеет доступ.
         """
         user_id = self.request.user_id
-        project_ids = ProjectUser.objects.filter(user_id=user_id).values_list(
-            "project_id", flat=True
-        )
-        return Project.objects.filter(id__in=project_ids)
+        return ProjectService.get_users_projects(user_id)
 
     def perform_create(self, serializer):
         """
@@ -54,8 +51,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         Возвращает список участников проекта, доступных текущему пользователю.
         """
         user_id = self.request.user_id
-        project_users = ProjectService.get_project_users_by_user_id(user_id)
-        return project_users
+        return ProjectService.get_project_users_by_user_id(user_id)
 
     @action(
         detail=True,
