@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from celery import shared_task
 from django.utils.timezone import now
 
-from api.email_api import EmailAPI
+from api.email import EmailAPI
 from task_manager.settings import FROM_EMAIL, SEND_MAIL_API_KEY, SEND_MAIL_API_URL
 from task_manager.celery_app import app
 

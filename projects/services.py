@@ -4,14 +4,14 @@ from django.db import transaction
 
 from tasks.models import Task
 from projects.models import Project, ProjectUser
-from projects.serializers import GetProjectUserSerializer
+from projects.serializers import ProjectUserSerializerGet
 
 
 class ProjectService:
     @staticmethod
     def get_project_users(project_id: int) -> List[ProjectUser]:
         users = ProjectUser.objects.filter(project_id=project_id)
-        serializer = GetProjectUserSerializer(users, many=True)
+        serializer = ProjectUserSerializerGet(users, many=True)
         return serializer.data
 
     @staticmethod

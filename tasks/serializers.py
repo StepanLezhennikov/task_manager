@@ -9,7 +9,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = ["project", "title", "description", "status", "deadline"]
 
 
-class UpdateTaskDeadlineSerializer(serializers.ModelSerializer):
+class TaskDeadlineSerializerUpdate(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = ["deadline"]

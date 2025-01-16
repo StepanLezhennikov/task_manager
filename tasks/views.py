@@ -7,7 +7,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
-from api.auth_api import AuthAPI
+from api.auth import AuthAPI
 from tasks.models import Task, TaskSubscription
 from tasks.filters import TaskFilter
 from tasks.services import TaskService

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
-from api.auth_api import AuthAPI
+from api.auth import AuthAPI
 from projects.models import Project, ProjectUser
 from projects.services import ProjectService
 from projects.permissions import (

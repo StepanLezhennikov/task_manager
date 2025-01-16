@@ -10,14 +10,14 @@ class ProjectUserSerializer(serializers.ModelSerializer):
         fields = ["project", "role"]
 
 
-class GetProjectUserSerializer(serializers.ModelSerializer):
+class ProjectUserSerializerGet(serializers.ModelSerializer):
     class Meta:
         model = ProjectUser
         fields = ["user_id", "role"]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    project_users = GetProjectUserSerializer(many=True, required=False)
+    project_users = ProjectUserSerializerGet(many=True, required=False)
     tasks = TaskForProjectSerializer(many=True, required=False)
 
     class Meta:
