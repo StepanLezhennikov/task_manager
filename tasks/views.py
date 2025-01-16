@@ -31,7 +31,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         task = serializer.save()
         TaskSubscription.objects.create(
             task=task,
-            user_id=self.request.user_id,
+            user_id=self.request.user_data.id,
             role=TaskSubscription.RoleChoices.OWNER,
             is_subscribed=True,
         )
@@ -66,7 +66,7 @@ class UpdateTaskDeadlineView(APIView):
         result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":
             NotificationService.send_deadline_notification_after_changing_deadline(
-                pk, new_deadline, [self.request.user_email]
+                pk, new_deadline, [self.request.user_data.email]
             )
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)

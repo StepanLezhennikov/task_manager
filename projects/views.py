@@ -22,7 +22,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         Возвращает только проекты, к которым пользователь имеет доступ.
         """
-        user_id = self.request.user_id
+        user_id = self.request.user_data.id
         return ProjectService.get_users_projects(user_id)
 
     def perform_create(self, serializer):
@@ -30,8 +30,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
         Создает проект и автоматически назначает пользователя владельцем.
         """
         validated_data = serializer.validated_data
-        user_id = self.request.user_id
-        user_email = self.request.user_email
+        user_id = self.request.user_data.id
+        user_email = self.request.user_data.email
 
         project = ProjectService.create_project_with_users_and_tasks(
             validated_data, user_id, user_email
@@ -50,7 +50,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         """
         Возвращает список участников проекта, доступных текущему пользователю.
         """
-        user_id = self.request.user_id
+        user_id = self.request.user_data.id
         return ProjectService.get_project_users_by_user_id(user_id)
 
     @action(
@@ -90,7 +90,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
             NotificationService.send_invite_email(
-                from_user_email=request.user_email,
+                from_user_email=request.user_data.email,
                 project_name=project.name,
                 recipient_list=["stepanlezennikov@gmail.com"],
             )  # Change email later
@@ -101,7 +101,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["GET"])
     def get_project_users(self, request, *args, **kwargs) -> Response:
         """Просмотр пользователей на проекте"""
-        user_id = request.user_id
+        user_id = request.user_data.id
         project_id = kwargs.get("project_id")
 
         project = get_object_or_404(Project, id=project_id)

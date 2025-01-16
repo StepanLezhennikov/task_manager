@@ -29,7 +29,7 @@ class IsTaskOwner(BasePermission, TaskRolesGetMixin):
     """
 
     def has_permission(self, request, view):
-        user_id = request.user_id
+        user_id = request.user_data.id
         task_id = view.kwargs.get("pk")
 
         roles = self.get_task_roles(user_id, task_id)
@@ -45,7 +45,7 @@ class IsTaskPerformer(BasePermission, TaskRolesGetMixin):
     """
 
     def has_permission(self, request, view):
-        user_id = request.user_id
+        user_id = request.user_data.id
         task_id = view.kwargs.get("pk")
 
         roles = self.get_task_roles(user_id, task_id)

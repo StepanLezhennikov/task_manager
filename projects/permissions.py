@@ -10,7 +10,7 @@ class HasAccessToProject(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return ProjectUser.objects.filter(
-            user_id=request.user_id, project_id=request.data.get("project")
+            user_id=request.user_data.id, project_id=request.data.get("project")
         ).exists()
 
 
@@ -22,7 +22,7 @@ class IsProjectUserReader(BasePermission):
     def has_object_permission(self, request, view, obj):
         return (
             request.method in SAFE_METHODS
-            and obj.project_users.filter(user_id=request.user_id).exists()
+            and obj.project_users.filter(user_id=request.user_data.id).exists()
         )
 
 
@@ -33,5 +33,5 @@ class IsProjectUserOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.project_users.filter(
-            user_id=request.user_id, role=ProjectUser.RoleChoices.OWNER
+            user_id=request.user_data.id, role=ProjectUser.RoleChoices.OWNER
         ).exists()
