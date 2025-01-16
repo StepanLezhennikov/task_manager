@@ -23,7 +23,6 @@ class ProjectUser(models.Model):
         Project, on_delete=models.CASCADE, related_name="project_users"
     )
     user_id = models.BigIntegerField()
-    user_email = models.EmailField(max_length=255)
     role = models.CharField(
         max_length=10, choices=RoleChoices.choices, default=RoleChoices.READER
     )
@@ -34,4 +33,4 @@ class ProjectUser(models.Model):
         unique_together = ("project", "user_id")
 
     def __str__(self):
-        return f"{self.user_email} ({self.role}) in {self.project.name}"
+        return f"{self.user_id} ({self.role}) in {self.project.name}"

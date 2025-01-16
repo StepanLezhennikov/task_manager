@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import action
 
+from api.auth_api import AuthAPI
 from projects.models import Project, ProjectUser
 from projects.services import ProjectService
 from projects.permissions import (
@@ -31,10 +32,9 @@ class ProjectViewSet(viewsets.ModelViewSet):
         """
         validated_data = serializer.validated_data
         user_id = self.request.user_data.id
-        user_email = self.request.user_data.email
 
         project = ProjectService.create_project_with_users_and_tasks(
-            validated_data, user_id, user_email
+            validated_data, user_id
         )
 
         serializer.instance = project
@@ -74,31 +74,31 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        user_email = "example@gmail.com"  # В будущем интегрировать с микросервисом аутентификации
+        added_user_email = AuthAPI.get_email_by_id(added_user_id)
         role = request.data.get("role")
 
         user_data = {
             "user_id": added_user_id,
-            "user_email": user_email,
             "project": project_id,
             "role": role,
         }
-
         self.check_object_permissions(request, project)
 
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
+
+            user_email = AuthAPI.get_email_by_id(request.user_data.id)
             NotificationService.send_invite_email(
-                from_user_email=request.user_data.email,
+                from_user_email=user_email,
                 project_name=project.name,
-                recipient_list=["stepanlezennikov@gmail.com"],
-            )  # Change email later
+                recipient_list=[added_user_email],
+            )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True, methods=["GET"])
+    @action(detail=True, methods=["GET"], permission_classes=[HasAccessToProject])
     def get_project_users(self, request, *args, **kwargs) -> Response:
         """Просмотр пользователей на проекте"""
         user_id = request.user_data.id
@@ -111,11 +111,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
                 {"error": "user_id is required."}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        if user_id not in project.project_users.all().values_list("user_id", flat=True):
-            return Response(
-                {"error": "You do not have access to this project."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        self.check_object_permissions(request, project)
 
         data = ProjectService.get_project_users(project_id)
         return Response(data, status=status.HTTP_200_OK)

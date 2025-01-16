@@ -13,17 +13,11 @@ class ProjectUserSerializer(serializers.ModelSerializer):
 class GetProjectUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectUser
-        fields = ["user_id", "user_email", "role"]
-
-
-class ProjectUserForProjectSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProjectUser
-        fields = ["user_id", "user_email", "role"]
+        fields = ["user_id", "role"]
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    project_users = ProjectUserForProjectSerializer(many=True, required=False)
+    project_users = GetProjectUserSerializer(many=True, required=False)
     tasks = TaskForProjectSerializer(many=True, required=False)
 
     class Meta:

@@ -29,7 +29,7 @@ class ProjectService:
 
     @staticmethod
     def create_project_with_users_and_tasks(
-        validated_data: dict, user_id: int, user_email: str
+        validated_data: dict, user_id: int
     ) -> Project:
         """
         Creates a new project, assigns the current user as the owner,
@@ -53,7 +53,6 @@ class ProjectService:
             ProjectUser.objects.create(
                 project=project,
                 user_id=user_id,
-                user_email=user_email,
                 role=ProjectUser.RoleChoices.OWNER,
             )
 

@@ -2,14 +2,15 @@ import logging
 from typing import List, Optional
 from datetime import datetime, timedelta
 
-import requests
 from celery import shared_task
 from django.utils.timezone import now
 
+from api.email_api import EmailAPI
 from task_manager.settings import FROM_EMAIL, SEND_MAIL_API_KEY, SEND_MAIL_API_URL
 from task_manager.celery_app import app
 
 logger = logging.getLogger(__name__)
+email_api = EmailAPI(SEND_MAIL_API_URL, SEND_MAIL_API_KEY, FROM_EMAIL)
 
 
 class NotificationService:
@@ -56,30 +57,8 @@ class NotificationService:
         results = []
 
         for recipient in recipient_list:
-            payload = {
-                "action": "issue.send",
-                "letter": {
-                    "message": {"html": message},
-                    "subject": subject,
-                    "from.email": FROM_EMAIL,
-                },
-                "group": "personal",
-                "email": recipient,
-                "sendwhen": "now",
-                "apikey": SEND_MAIL_API_KEY,
-            }
-
-            try:
-                response = requests.post(SEND_MAIL_API_URL, json=payload)
-
-                if response.status_code == 200:
-                    results.append(f"Email sent to {recipient}")
-                else:
-                    results.append(
-                        f"Failed to send email to {recipient}: {response.text}"
-                    )
-            except requests.RequestException as e:
-                results.append(f"Error sending email to {recipient}: {str(e)}")
+            result = email_api.send_email(subject, message, recipient)
+            results.append(result)
 
         return results
 

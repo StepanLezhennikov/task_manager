@@ -7,6 +7,7 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 
+from api.auth_api import AuthAPI
 from tasks.models import Task, TaskSubscription
 from tasks.filters import TaskFilter
 from tasks.services import TaskService
@@ -35,9 +36,9 @@ class TaskViewSet(viewsets.ModelViewSet):
             role=TaskSubscription.RoleChoices.OWNER,
             is_subscribed=True,
         )
-
+        user_email = AuthAPI.get_email_by_id(self.request.user_data.id)
         NotificationService.send_deadline_notification(
-            task.id, task.deadline, ["stepanlezennikov@gmail.com"]
+            task.id, task.deadline, [user_email]
         )
 
     def perform_destroy(self, request, *args, **kwargs):
@@ -65,8 +66,9 @@ class UpdateTaskDeadlineView(APIView):
 
         result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":
+            user_email = AuthAPI.get_email_by_id(self.request.user_data.id)
             NotificationService.send_deadline_notification_after_changing_deadline(
-                pk, new_deadline, [self.request.user_data.email]
+                pk, new_deadline, [user_email]
             )
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)

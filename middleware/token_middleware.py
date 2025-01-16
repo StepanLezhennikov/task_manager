@@ -6,7 +6,7 @@ class TokenMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        user_data = User(id=1, email="stepanlezennikov@gmail.com", role="admin")
+        user_data = User(id=1, role="admin")
         request.user_data = user_data
         response = self.get_response(request)
         return response
