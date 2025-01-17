@@ -59,15 +59,17 @@ class ProjectService:
             return project
 
     @staticmethod
-    def get_project_users_by_user_id(user_id: int) -> List[ProjectUser]:
+    def get_project_users_by_user_id(user_id: int):
         project_ids = ProjectUser.objects.filter(user_id=user_id).values_list(
             "project_id", flat=True
         )
-        return list(ProjectUser.objects.filter(project_id__in=project_ids))
+        return ProjectUser.objects.filter(project_id__in=project_ids)
 
     @staticmethod
-    def get_users_projects(user_id: int) -> List[Project]:
-        project_ids = ProjectUser.objects.filter(user_id=user_id).values_list(
-            "project_id", flat=True
+    def get_users_projects(user_id: int):
+        project_ids = list(
+            ProjectUser.objects.filter(user_id=user_id).values_list(
+                "project_id", flat=True
+            )
         )
-        return list(Project.objects.filter(id__in=project_ids))
+        return Project.objects.filter(pk__in=project_ids)

@@ -1,3 +1,4 @@
+from enum import Enum
 from dataclasses import dataclass
 
 
@@ -5,3 +6,8 @@ from dataclasses import dataclass
 class User:
     id: int
     role: str
+
+
+class Role(Enum):
+    ADMIN = "admin"
+    USER = "user"

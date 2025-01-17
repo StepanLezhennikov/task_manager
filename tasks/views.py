@@ -30,6 +30,7 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task = serializer.save()
+        print("task:", task)
         TaskSubscription.objects.create(
             task=task,
             user_id=self.request.user_data.id,
@@ -55,6 +56,8 @@ class UpdateTaskDeadlineView(APIView):
     permission_classes = [IsTaskOwner | IsTaskPerformer]
 
     def patch(self, request, **kwargs):
+        print("patch начался")
+        print("user_data:", request.user_data)
         pk = self.kwargs.get("pk")
         try:
             new_deadline = parse(request.data.get("deadline"))
