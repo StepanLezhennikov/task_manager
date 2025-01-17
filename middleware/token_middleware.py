@@ -14,7 +14,7 @@ class TokenMiddleware:
 
         claims = jwt.get_unverified_claims(token)
         if "id" not in claims or "role" not in claims.keys():
-            raise Exception("Invalid JWT token")
+            raise Exception("Invalid JWT token!")
 
         user_data = User(id=int(claims["id"]), role=claims["role"])
         request.user_data = user_data
