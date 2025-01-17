@@ -44,19 +44,13 @@ jobs:
       - name: Docker Compose Setup
         uses: ndeloof/install-compose-action@v0.0.1
 
+      - name: Create .env file
+        run: |
+          echo POSTGRES_DB=${{ secrets.DJANGO_DB_NAME }} >> .env
+          echo POSTGRES_USER=${{ secrets.DJANGO_DB_USER }} >> .env
+          echo POSTGRES_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }} >> .env
+
       - name: Start up containers with docker compose
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
-          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
-          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_PORT: 5432
-          CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-          CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-          SEND_MAIL_API_URL: ${{ secrets.SEND_MAIL_API_URL }}
-          SEND_MAIL_API_KEY: ${{ secrets.SEND_MAIL_API_KEY }}
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
         run: docker-compose up -d
 
       - name: Run migrations
