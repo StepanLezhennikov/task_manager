@@ -57,7 +57,7 @@ jobs:
         run: docker-compose exec web python manage.py migrate
 
       - name: Run tests
-        run: docker-compose exec  task_manager-task_manager-1 pytest --cov=. --cov-report=term --cov-fail-under=90
+        run: docker-compose exec task_manager-task_manager-1 pytest --cov=. --cov-report=term --cov-fail-under=90
 
       - name: Stop containers
         run: docker-compose down
