@@ -36,10 +36,7 @@ def test_get_project_users(api_client, project, admin_headers):
     """Test retrieving users of a project."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     url = f"/project/{project.id}/users/"
-    print(url)
     response = api_client.get(url)
-    print(response.data)
-    print(project.project_users)
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data) == 1
     assert response.data[0]["user_id"] == 1
