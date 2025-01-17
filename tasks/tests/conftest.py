@@ -7,8 +7,8 @@ from rest_framework.test import APIClient
 from tasks.models import Task
 from projects.models import Project
 
-TASKS_URL = "/api/tasks/"
-TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"
+TASKS_URL = "/api/v1/tasks/"
+TASK_SUBSCRIPTIONS_URL = "/api/v1/task_subscriptions/"
 
 
 @pytest.fixture

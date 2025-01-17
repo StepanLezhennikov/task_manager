@@ -26,9 +26,8 @@ def project_user(project):
     """Фикстура для создания пользователя в проекте."""
     return ProjectUser.objects.create(
         project=project,
-        user_id=1,
-        user_email="stepanlezennikov@gmail.com",
-        role="editor",
+        user_id=2,
+        role=ProjectUser.RoleChoices.EDITOR,
     )
 
 
