@@ -56,17 +56,17 @@ test = ["astroid (>=2,<4)", "pytest", "pytest-cov", "pytest-xdist"]
 
 [[package]]
 name = "awscli"
-version = "1.37.0"
+version = "1.37.1"
 description = "Universal Command Line Environment for AWS."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "awscli-1.37.0-py3-none-any.whl", hash = "sha256:b03d3ca50585a8d81f52688f36c775c2a24e992808de4e2e52daf10f13367f92"},
-    {file = "awscli-1.37.0.tar.gz", hash = "sha256:c167aaa2061205255eb971cd6549b6e0035c7d8ac05020e468755d4aa096154e"},
+    {file = "awscli-1.37.1-py3-none-any.whl", hash = "sha256:e0e34198f0c3c77f23a77a9cd62f4625eebd64bfa4d6d6d27d1a8eb8f6c52195"},
+    {file = "awscli-1.37.1.tar.gz", hash = "sha256:0f9f0f030b2a87d1c84cbc88a34e4b449bd13172944e763021fc50222dfd8379"},
 ]
 
 [package.dependencies]
-botocore = "1.36.0"
+botocore = "1.36.1"
 colorama = ">=0.2.5,<0.4.7"
 docutils = ">=0.10,<0.17"
 PyYAML = ">=3.10,<6.1"
@@ -130,17 +130,17 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.36.0"
+version = "1.36.1"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.36.0-py3-none-any.whl", hash = "sha256:d0ca7a58ce25701a52232cc8df9d87854824f1f2964b929305722ebc7959d5a9"},
-    {file = "boto3-1.36.0.tar.gz", hash = "sha256:159898f51c2997a12541c0e02d6e5a8fe2993ddb307b9478fd9a339f98b57e00"},
+    {file = "boto3-1.36.1-py3-none-any.whl", hash = "sha256:eb21380d73fec6645439c0d802210f72a0cdb3295b02953f246ff53f512faa8f"},
+    {file = "boto3-1.36.1.tar.gz", hash = "sha256:258ab77225a81d3cf3029c9afe9920cd9dec317689dfadec6f6f0a23130bb60a"},
 ]
 
 [package.dependencies]
-botocore = ">=1.36.0,<1.37.0"
+botocore = ">=1.36.1,<1.37.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.11.0,<0.12.0"
 
@@ -149,13 +149,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "botocore"
-version = "1.36.0"
+version = "1.36.1"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.36.0-py3-none-any.whl", hash = "sha256:b54b11f0cfc47fc1243ada0f7f461266c279968487616720fa8ebb02183917d7"},
-    {file = "botocore-1.36.0.tar.gz", hash = "sha256:0232029ff9ae3f5b50cdb25cbd257c16f87402b6d31a05bd6483638ee6434c4b"},
+    {file = "botocore-1.36.1-py3-none-any.whl", hash = "sha256:dec513b4eb8a847d79bbefdcdd07040ed9d44c20b0001136f0890a03d595705a"},
+    {file = "botocore-1.36.1.tar.gz", hash = "sha256:f789a6f272b5b3d8f8756495019785e33868e5e00dd9662a3ee7959ac939bb12"},
 ]
 
 [package.dependencies]
@@ -1046,19 +1046,6 @@ files = [
 ]
 
 [[package]]
-name = "jose"
-version = "1.0.0"
-description = "An implementation of the JOSE draft"
-optional = false
-python-versions = "*"
-files = [
-    {file = "jose-1.0.0.tar.gz", hash = "sha256:8436c3617cd94e1ba97828fbb1ce27c129f66c78fb855b4bb47e122b5f345fba"},
-]
-
-[package.dependencies]
-pycrypto = ">=2.6"
-
-[[package]]
 name = "jwt"
 version = "1.3.1"
 description = "JSON Web Token library for Python 3."
@@ -1405,16 +1392,6 @@ files = [
 ]
 
 [[package]]
-name = "pycrypto"
-version = "2.6.1"
-description = "Cryptographic modules for Python."
-optional = false
-python-versions = "*"
-files = [
-    {file = "pycrypto-2.6.1.tar.gz", hash = "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"},
-]
-
-[[package]]
 name = "pyflakes"
 version = "3.2.0"
 description = "passive checker of Python programs"
@@ -1713,20 +1690,20 @@ files = [
 
 [[package]]
 name = "s3transfer"
-version = "0.11.0"
+version = "0.11.1"
 description = "An Amazon S3 Transfer Manager"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "s3transfer-0.11.0-py3-none-any.whl", hash = "sha256:f43b03931c198743569bbfb6a328a53f4b2b4ec723cd7c01fab68e3119db3f8b"},
-    {file = "s3transfer-0.11.0.tar.gz", hash = "sha256:6563eda054c33bdebef7cbf309488634651c47270d828e594d151cd289fb7cf7"},
+    {file = "s3transfer-0.11.1-py3-none-any.whl", hash = "sha256:8fa0aa48177be1f3425176dfe1ab85dcd3d962df603c3dbfc585e6bf857ef0ff"},
+    {file = "s3transfer-0.11.1.tar.gz", hash = "sha256:3f25c900a367c8b7f7d8f9c34edc87e300bde424f779dc9f0a8ae4f9df9264f6"},
 ]
 
 [package.dependencies]
-botocore = ">=1.33.2,<2.0a.0"
+botocore = ">=1.36.0,<2.0a.0"
 
 [package.extras]
-crt = ["botocore[crt] (>=1.33.2,<2.0a.0)"]
+crt = ["botocore[crt] (>=1.36.0,<2.0a.0)"]
 
 [[package]]
 name = "six"
@@ -1919,4 +1896,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "ad213dfbd0dd27cca5dee60af1b2da2c0eaa9a776afb6ad23a3039006fd6eb3a"
+content-hash = "f1676e1bd59b8080e9c6d3f8fb0ba47089c85c1aa3a882c817cef5ac225ee546"
