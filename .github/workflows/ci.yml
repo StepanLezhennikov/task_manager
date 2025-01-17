@@ -72,6 +72,8 @@ jobs:
           DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
           DJANGO_DB_HOST: localhost
           DJANGO_DB_PORT: 5432
+          CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
+          CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
         run: |
           poetry run python manage.py migrate --noinput
 
