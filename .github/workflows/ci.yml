@@ -33,66 +33,25 @@ jobs:
           args: '. --config pyproject.toml'
 
   run-tests:
-    name: Run pytest
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_DB: ${{ secrets.DJANGO_DB_NAME }}
-          POSTGRES_USER: ${{ secrets.DJANGO_DB_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-        ports:
-          - 5432:5432
-
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Setup Python and Install Pytest
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12.3"
-          dependencies: "poetry"
+      - name: Docker Setup Docker
+        uses: docker/setup-docker-action@v4.1.0
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: latest
+      - name: Docker Compose Setup
+        uses: ndeloof/install-compose-action@v0.0.1
 
-      - name: Install dependencies
-        run: poetry install --no-interaction --no-root --verbose
+      - name: Start up containers with docker compose
+        run: docker-compose up -d
 
-      - name: Apply Django migrations
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
-          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
-          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_PORT: 5432
-          CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-          CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-          SEND_MAIL_API_URL: ${{ secrets.SEND_MAIL_API_URL }}
-          SEND_MAIL_API_KEY: ${{ secrets.SEND_MAIL_API_KEY }}
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-        run: |
-          poetry run python manage.py migrate --noinput
+      - name: Run migrations
+        run: docker-compose exec web python manage.py migrate
 
-      - name: Test with pytest and coverage
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_NAME: ${{ secrets.DJANGO_DB_NAME }}
-          DJANGO_DB_USER: ${{ secrets.DJANGO_DB_USER }}
-          DJANGO_DB_PASSWORD: ${{ secrets.DJANGO_DB_PASSWORD }}
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_PORT: 5432
-          CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
-          CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
-          SEND_MAIL_API_URL: ${{ secrets.SEND_MAIL_API_URL }}
-          SEND_MAIL_API_KEY: ${{ secrets.SEND_MAIL_API_KEY }}
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-        working-directory: .
-        run: |
-          poetry run pytest . --cov=. --cov-report=xml --cov-report=term
+      - name: Run tests
+        run: docker-compose exec web pytest --cov=. --cov-report=term --cov-fail-under=90
+
+      - name: Stop containers
+        run: docker-compose down
