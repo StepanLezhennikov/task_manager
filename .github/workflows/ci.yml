@@ -53,6 +53,11 @@ jobs:
       - name: Start up containers with docker compose
         run: docker-compose up -d
 
+      - name: Wait for services to start
+        run: |
+          echo "Waiting for task_manager service to be healthy..."
+          docker-compose exec task_manager sh -c "until curl -s http://localhost:8000/healthcheck; do sleep 1; done"
+
       - name: View logs
         run: docker-compose logs task_manager
 
