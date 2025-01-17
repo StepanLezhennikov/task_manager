@@ -74,6 +74,9 @@ jobs:
           DJANGO_DB_PORT: 5432
           CELERY_BROKER_URL: ${{ secrets.CELERY_BROKER_URL }}
           CELERY_RESULT_BACKEND: ${{ secrets.CELERY_RESULT_BACKEND }}
+          SEND_MAIL_API_URL: ${{ secrets.SEND_MAIL_API_URL }}
+          SEND_MAIL_API_KEY: ${{ secrets.SEND_MAIL_API_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
         run: |
           poetry run python manage.py migrate --noinput
 
