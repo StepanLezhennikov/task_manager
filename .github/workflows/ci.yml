@@ -50,11 +50,14 @@ jobs:
           echo POSTGRES_USER=${{ secrets.DJANGO_DB_USER }} >> .env
           echo POSTGRES_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }} >> .env
 
+      - name: View logs
+        run: docker-compose logs task_manager
+
       - name: Start up containers with docker compose
         run: docker-compose up -d
 
       - name: Run migrations
-        run: docker-compose exec task_manager python manage.py migrate
+        run: timeout 300 docker-compose exec task_manager python manage.py migrate
 
       - name: Run tests
         run: docker-compose exec task_manager pytest --cov=. --cov-report=term --cov-fail-under=90
