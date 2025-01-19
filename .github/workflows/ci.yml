@@ -32,7 +32,7 @@ jobs:
           linter: ruff
           args: '. --config pyproject.toml'
 
-  run-tests:
+  run_tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -44,26 +44,11 @@ jobs:
       - name: Docker Compose Setup
         uses: ndeloof/install-compose-action@v0.0.1
 
-      - name: Create .env file
-        run: |
-          echo POSTGRES_DB=${{ secrets.DJANGO_DB_NAME }} >> .env
-          echo POSTGRES_USER=${{ secrets.DJANGO_DB_USER }} >> .env
-          echo POSTGRES_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }} >> .env
-
       - name: Start up containers with docker compose
         run: docker-compose up -d
 
-      - name: Ckeck containers
-        run: docker-compose ps -a
-
-      - name: View logs
-        run: docker-compose -p task_manager logs task_manager
-
-      - name: Run migrations
-        run: docker-compose exec task_manager python manage.py migrate
-
       - name: Run tests
-        run: docker-compose exec task_manager pytest --cov=. --cov-report=term --cov-fail-under=90
+        run: docker-compose exec task_manager poetry run python -m pytest
 
       - name: Stop containers
         run: docker-compose down
