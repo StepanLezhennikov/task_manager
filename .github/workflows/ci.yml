@@ -57,6 +57,9 @@ jobs:
           echo DJANGO_DB_PORT=${{ secrets.DJANGO_DB_PORT }} >> .env
           echo CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }} >> .env
           echo CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }} >> .env
+          echo SEND_MAIL_API_URL=${{ secrets.SEND_MAIL_API_URL }} >> .env
+          echo SEND_MAIL_API_KEY=${{ secrets.SEND_MAIL_API_KEY }} >> .env
+          echo FROM_EMAIL=${{ secrets.FROM_EMAIL }} >> .env
 
       - name: Debug .env file
         run: cat .env
