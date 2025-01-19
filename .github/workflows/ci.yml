@@ -57,7 +57,7 @@ jobs:
         run: docker-compose logs task_manager
 
       - name: Run migrations
-        run: timeout 300 docker-compose exec task_manager python manage.py migrate
+        run: docker-compose exec task_manager python manage.py migrate
 
       - name: Run tests
         run: docker-compose exec task_manager pytest --cov=. --cov-report=term --cov-fail-under=90
