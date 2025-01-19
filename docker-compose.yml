@@ -20,6 +20,7 @@ services:
 
   task_manager:
     build: .
+    container_name: task_manager
     ports:
       - "8000:8000"
     depends_on:
