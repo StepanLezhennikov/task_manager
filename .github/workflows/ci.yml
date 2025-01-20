@@ -44,7 +44,7 @@ jobs:
         run: docker-compose up -d
 
       - name: Run tests
-        run: docker-compose exec task_manager pytest
+        run: docker-compose exec task_manager pytest --cov=. --cov-report=term --cov-fail-under=90
 
       - name: Stop containers
         run: docker-compose down
