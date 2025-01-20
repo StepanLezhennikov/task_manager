@@ -61,17 +61,8 @@ jobs:
           echo SEND_MAIL_API_KEY=${{ secrets.SEND_MAIL_API_KEY }} >> .env
           echo FROM_EMAIL=${{ secrets.FROM_EMAIL }} >> .env
 
-      - name: Debug .env file
-        run: cat .env
-
       - name: Start up containers with docker compose
         run: docker-compose up -d
-
-      - name: Ckeck containers
-        run: docker-compose ps -a
-
-      - name: View logs
-        run: docker-compose logs task_manager
 
       - name: Run migrations
         run: docker-compose exec task_manager python manage.py migrate
