@@ -43,28 +43,11 @@ jobs:
       - name: Docker Compose Setup
         uses: ndeloof/install-compose-action@v0.0.1
 
-      - name: Create .env file
-        run: |
-          echo SECRET_KEY=${{ secrets.SECRET_KEY }} >> .env
-          echo POSTGRES_DB=${{ secrets.POSTGRES_DB }} >> .env
-          echo POSTGRES_USER=${{ secrets.POSTGRES_USER }} >> .env
-          echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
-          echo DJANGO_DB_NAME=${{ secrets.DJANGO_DB_NAME }} >> .env
-          echo DJANGO_DB_USER=${{ secrets.DJANGO_DB_USER }} >> .env
-          echo DJANGO_DB_PASSWORD=${{ secrets.DJANGO_DB_PASSWORD }} >> .env
-          echo DJANGO_DB_HOST=${{ secrets.DJANGO_DB_HOST }} >> .env
-          echo DJANGO_DB_PORT=${{ secrets.DJANGO_DB_PORT }} >> .env
-          echo CELERY_BROKER_URL=${{ secrets.CELERY_BROKER_URL }} >> .env
-          echo CELERY_RESULT_BACKEND=${{ secrets.CELERY_RESULT_BACKEND }} >> .env
-          echo SEND_MAIL_API_URL=${{ secrets.SEND_MAIL_API_URL }} >> .env
-          echo SEND_MAIL_API_KEY=${{ secrets.SEND_MAIL_API_KEY }} >> .env
-          echo FROM_EMAIL=${{ secrets.FROM_EMAIL }} >> .env
-
       - name: Start up containers with docker compose
         run: docker-compose up -d
 
       - name: Run migrations
-        run: docker-compose exec task_manager python manage.py migrate --fake-initial
+        run: docker-compose exec task_manager python manage.py migrate
 
       - name: Run tests
         run: docker-compose exec task_manager pytest
