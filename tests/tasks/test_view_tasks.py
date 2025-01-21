@@ -5,7 +5,7 @@ from rest_framework import status
 from django.utils.timezone import now
 
 from tasks.models import Task, TaskSubscription
-from tasks.tests.conftest import TASKS_URL, TASK_SUBSCRIPTIONS_URL
+from tests.tasks.conftest import TASKS_URL, TASK_SUBSCRIPTIONS_URL
 
 
 @pytest.mark.django_db

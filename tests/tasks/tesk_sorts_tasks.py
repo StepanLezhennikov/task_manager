@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from tasks.tests.conftest import TASKS_URL
+from tests.tasks.conftest import TASKS_URL
 
 
 @pytest.mark.django_db
