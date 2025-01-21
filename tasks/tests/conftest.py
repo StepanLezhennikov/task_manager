@@ -1,38 +1,13 @@
-from typing import Dict
 from datetime import datetime, timedelta
 
 import pytest
-from jose import jwt
 from django.utils import timezone
-from rest_framework.test import APIClient
 
 from tasks.models import Task, TaskSubscription
 from projects.models import Project, ProjectUser
-from projects.schemas.dto import Role
 
 TASKS_URL = "/api/v1/tasks/"
 TASK_SUBSCRIPTIONS_URL = "/api/v1/task_subscriptions/"
-
-
-def create_jwt_token(user_id: int | None = None, role: Role | None = None) -> str:
-    payload = {}
-    if user_id is not None:
-        payload.update({"id": str(user_id)})
-    if role is not None:
-        payload.update({"role": str(role)})
-    return jwt.encode(payload, "super_secret_key", algorithm="HS256")
-
-
-@pytest.fixture
-def api_client():
-    """Фикстура для API клиента."""
-    client = APIClient()
-    return client
-
-
-@pytest.fixture
-def admin_headers() -> Dict[str, str]:
-    return {"Authorization": create_jwt_token(user_id=1, role=Role.ADMIN)}
 
 
 @pytest.fixture
