@@ -20,6 +20,7 @@ services:
 
   task_manager:
     build: .
+    container_name: task_manager
     ports:
       - "8000:8000"
     depends_on:
@@ -31,7 +32,7 @@ services:
       - .:/app
     networks:
       - app-network
-    env_file: .env
+    env_file: .env.example
     entrypoint: "/entrypoint.sh"
 
   celery:
@@ -43,7 +44,7 @@ services:
       - .:/app
     networks:
       - app-network
-    env_file: .env
+    env_file: .env.example
     entrypoint: "/worker_entrypoint.sh"
 
   redis:

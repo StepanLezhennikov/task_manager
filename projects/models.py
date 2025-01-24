@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class Project(models.Model):
@@ -13,18 +14,18 @@ class Project(models.Model):
 
 
 class ProjectUser(models.Model):
-    ROLE_CHOICES = [
-        ("reader", "Reader"),
-        ("editor", "Editor"),
-        ("owner", "Owner"),
-    ]
+    class RoleChoices(models.TextChoices):
+        READER = "reader", _("Reader")
+        EDITOR = "editor", _("Editor")
+        OWNER = "owner", _("Owner")
 
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="project_users"
     )
     user_id = models.BigIntegerField()
-    user_email = models.EmailField(max_length=255)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="reader")
+    role = models.CharField(
+        max_length=10, choices=RoleChoices.choices, default=RoleChoices.READER
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -32,4 +33,4 @@ class ProjectUser(models.Model):
         unique_together = ("project", "user_id")
 
     def __str__(self):
-        return f"{self.user_email} ({self.role}) in {self.project.name}"
+        return f"Id: {self.user_id} ({self.role}) in {self.project.name}"

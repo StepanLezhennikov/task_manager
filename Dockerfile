@@ -29,7 +29,7 @@ COPY --from=builder /app /app
 RUN pip install --no-cache-dir poetry
 
 RUN poetry config virtualenvs.create false && \
-    poetry install --only main --no-root --verbose
+    poetry install --no-root --verbose
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup && \
     chown -R appuser:appgroup /app

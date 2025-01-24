@@ -1,26 +1,30 @@
+from datetime import datetime, timedelta
+
 import pytest
-from datetime import timedelta
 from django.utils import timezone
-from rest_framework.test import APIClient
-from projects.models import Project
-from tasks.models import Task
 
-TASKS_URL = "/api/tasks/"
-TASK_SUBSCRIPTIONS_URL = "/api/task_subscriptions/"
+from tasks.models import Task, TaskSubscription
+from projects.models import Project, ProjectUser
 
-
-@pytest.fixture
-def api_client():
-    return APIClient()
+TASKS_URL = "/api/v1/tasks/"
+TASK_SUBSCRIPTIONS_URL = "/api/v1/task_subscriptions/"
 
 
 @pytest.fixture
+@pytest.mark.django_db
 def project():
-    """Создание проекта для тестов."""
-    return Project.objects.create(
+    """Фикстура для создания проекта."""
+    project = Project.objects.create(
         name="Test Project",
         description="Test Description",
+        logo_url="http://example.com/logo.png",
     )
+    ProjectUser.objects.create(
+        project=project,
+        user_id=1,
+        role=ProjectUser.RoleChoices.OWNER,
+    )
+    return project
 
 
 @pytest.fixture
@@ -43,8 +47,27 @@ def task_data_views(project):
         "title": "Write tests",
         "description": "Write unit tests for the application.",
         "status": "RUNNING",
-        "deadline": "2024-12-27T00:00:00Z",
+        "deadline": datetime.now() + timedelta(days=3),
     }
+
+
+@pytest.fixture
+def task(project):
+    """Создание задачи."""
+    task = Task.objects.create(
+        project=project,
+        title="Write tests",
+        description="Write unit tests for the application.",
+        status=Task.Status.BACKLOG,
+        deadline=datetime.now() + timedelta(days=3),
+    )
+    TaskSubscription.objects.create(
+        user_id=1,
+        task=task,
+        role=TaskSubscription.RoleChoices.OWNER,
+        is_subscribed=True,
+    )
+    return task
 
 
 @pytest.fixture

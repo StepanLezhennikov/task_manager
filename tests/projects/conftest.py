@@ -1,33 +1,33 @@
 import pytest
-from rest_framework.test import APIClient
+
 from projects.models import Project, ProjectUser
 
 
 @pytest.fixture
-def api_client():
-    """Фикстура для API клиента."""
-    client = APIClient()
-    return client
-
-
-@pytest.fixture
+@pytest.mark.django_db
 def project():
     """Фикстура для создания проекта."""
-    return Project.objects.create(
+    project = Project.objects.create(
         name="Test Project",
         description="Test Description",
         logo_url="http://example.com/logo.png",
     )
+    ProjectUser.objects.create(
+        project=project,
+        user_id=1,
+        role=ProjectUser.RoleChoices.OWNER,
+    )
+    return project
 
 
 @pytest.fixture
+@pytest.mark.django_db
 def project_user(project):
     """Фикстура для создания пользователя в проекте."""
     return ProjectUser.objects.create(
         project=project,
-        user_id=1,
-        user_email="stepanlezennikov@gmail.com",
-        role="editor",
+        user_id=2,
+        role=ProjectUser.RoleChoices.EDITOR,
     )
 
 
@@ -35,8 +35,8 @@ def project_user(project):
 def project_data():
     """Данные для создания проекта через API."""
     return {
-        "name": "Test Project",
-        "description": "Test Description",
+        "name": "Test Project data",
+        "description": "Test Description data",
         "logo_url": "http://example.com/logo.png",
     }
 

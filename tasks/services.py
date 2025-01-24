@@ -1,16 +1,15 @@
-from .models import Task
-from tasks.schemas.dto import TaskDeadlineChanged
+from datetime import datetime
+
+from rest_framework.generics import get_object_or_404
+
+from tasks.models import Task
+from tasks.schemas.dto import TaskDeadlineChangedResponse
 
 
 class TaskService:
     @staticmethod
-    def update_deadline(pk, data):
-        try:
-            task = Task.objects.get(pk=pk)
-            task.deadline = data["deadline"]
-            task.save()
-            return TaskDeadlineChanged(status="success", deadline=data["deadline"])
-        except Task.DoesNotExist:
-            return TaskDeadlineChanged(status="error", error="Incorrect task Id")
-        except Exception:
-            return TaskDeadlineChanged(status="error", error="Incorrect deadline")
+    def update_deadline(pk: int, deadline: datetime) -> TaskDeadlineChangedResponse:
+        task = get_object_or_404(Task, pk=pk)
+        task.deadline = deadline
+        task.save()
+        return TaskDeadlineChangedResponse(status="success", deadline=deadline)

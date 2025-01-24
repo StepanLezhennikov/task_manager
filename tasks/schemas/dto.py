@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Optional
 from datetime import datetime
+from dataclasses import dataclass
 
 
 @dataclass
-class TaskDeadlineChanged:
+class TaskDeadlineChangedResponse:
     status: Literal["success", "error"]
-    deadline: datetime | None
-    error: str | None
+    deadline: Optional[datetime] = None
+    error: Optional[str] = None

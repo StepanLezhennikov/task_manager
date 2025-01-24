@@ -8,7 +8,7 @@ router.register(r"projects", ProjectViewSet, basename="project")
 router.register(r"project_users", ProjectUserViewSet)
 
 urlpatterns = [
-    path("api/", include(router.urls)),
+    path("api/v1/", include(router.urls)),
     path(
         "user/<int:user_id>/projects/",
         ProjectUserViewSet.as_view({"post": "add_user_to_project"}),

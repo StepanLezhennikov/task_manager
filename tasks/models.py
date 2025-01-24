@@ -1,19 +1,22 @@
 from django.db import models
-from .validators import validate_deadline_in_future
+from django.utils.translation import gettext_lazy as _
+
 from projects.models import Project
+from tasks.validators import validate_deadline_in_future
 
 
 class Task(models.Model):
-    STATUS_CHOICES = [
-        ("BACKLOG", "Backlog"),
-        ("RUNNING", "Running"),
-        ("DONE", "Done"),
-    ]
+    class Status(models.TextChoices):
+        BACKLOG = "BACKLOG", _("Backlog")
+        RUNNING = "RUNNING", _("Running")
+        DONE = "DONE", _("Done")
 
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="tasks")
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="PENDING")
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.BACKLOG
+    )
     deadline = models.DateTimeField(
         blank=True, null=True, validators=[validate_deadline_in_future]
     )
@@ -25,17 +28,18 @@ class Task(models.Model):
 
 
 class TaskSubscription(models.Model):
-    ROLE_CHOICES = [
-        ("OWNER", "Owner"),
-        ("PERFORMER", "Performer"),
-        ("SUBSCRIBER", "Subscriber"),
-    ]
+    class RoleChoices(models.TextChoices):
+        OWNER = "OWNER", _("Owner")
+        PERFORMER = "PERFORMER", _("Performer")
+        SUBSCRIBER = "SUBSCRIBER", _("Subscriber")
 
     user_id = models.BigIntegerField()
     task = models.ForeignKey(
         Task, on_delete=models.CASCADE, related_name="subscriptions"
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="PERFORMER")
+    role = models.CharField(
+        max_length=10, choices=RoleChoices.choices, default=RoleChoices.PERFORMER
+    )
     is_subscribed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

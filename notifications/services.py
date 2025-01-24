@@ -1,33 +1,31 @@
-from datetime import timedelta, datetime
-from dateutil.parser import parse
-from django.utils.timezone import now
-from celery import shared_task
-from task_manager.settings import SEND_MAIL_API_KEY, SEND_MAIL_API_URL, FROM_EMAIL
-import requests
-from task_manager.celery_app import app
 import logging
+from typing import List, Optional
+from datetime import datetime, timedelta
+
+from celery import shared_task
+from django.utils.timezone import now
+
+from api.email import EmailAPI
+from task_manager.celery_app import app
 
 logger = logging.getLogger(__name__)
+email_api = EmailAPI()
 
 
 class NotificationService:
     @classmethod
-    def send_invite_email(cls, from_user_email, project_name, recipient_list):
+    def send_invite_email(
+        cls, from_user_email: str, project_name: str, recipient_list: List[str]
+    ) -> None:
         subject = "You have been added to a project"
         message = f"User {from_user_email} added you to a project {project_name}"
-        recipient_list = ["stepanlezennikov@gmail.com"]
+
         cls.send_email.delay(subject, message, recipient_list)
 
     @classmethod
-    def send_deadile_notification(cls, task_id, task_deadline, recipient_list):
-        if not isinstance(task_deadline, datetime):
-            try:
-                task_deadline = parse(task_deadline)
-            except (ValueError, TypeError):
-                raise ValueError(
-                    f"task_deadline must be a datetime object or a valid datetime string, got {task_deadline}"
-                )
-
+    def send_deadline_notification(
+        cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
+    ) -> None:
         subject = "Task Deadline Notification"
         message = f"Task {task_id} deadline is approaching. Deadline: {task_deadline}"
 
@@ -37,55 +35,37 @@ class NotificationService:
             countdown = 0
         cls.send_email.apply_async(
             args=[subject, message, recipient_list],
+            kwargs={"task_id": task_id, "task_deadline": task_deadline},
             countdown=countdown,
             queue="default",
         )
 
     @classmethod
-    def send_deadile_notification_after_changing_deadline(
-        cls, task_id, task_deadline, recipient_list
-    ):
+    def send_deadline_notification_after_changing_deadline(
+        cls, task_id: int, task_deadline: datetime, recipient_list: List[str]
+    ) -> None:
         cls.remove_deadline_tasks(task_id, task_deadline)
-        cls.send_deadile_notification(task_id, task_deadline, recipient_list)
+        cls.send_deadline_notification(task_id, task_deadline, recipient_list)
 
+    @staticmethod
     @shared_task
-    def send_email(subject, message, recipient_list):
+    def send_email(subject, message, recipient_list, **kwargs):
         """
         Sending mail with Celery.
         """
         results = []
 
         for recipient in recipient_list:
-            payload = {
-                "action": "issue.send",
-                "letter": {
-                    "message": {"html": message},
-                    "subject": subject,
-                    "from.email": FROM_EMAIL,
-                },
-                "group": "personal",
-                "email": recipient,
-                "sendwhen": "now",
-                "apikey": SEND_MAIL_API_KEY,
-            }
-
-            try:
-                response = requests.post(SEND_MAIL_API_URL, json=payload)
-
-                if response.status_code == 200:
-                    results.append(f"Email sent to {recipient}")
-                else:
-                    results.append(
-                        f"Failed to send email to {recipient}: {response.text}"
-                    )
-            except requests.RequestException as e:
-                results.append(f"Error sending email to {recipient}: {str(e)}")
+            result = email_api.send_email(subject, message, recipient)
+            results.append(result)
 
         return results
 
     @staticmethod
     def remove_deadline_tasks(
-        task_id, non_matching_task_deadline=False, matching_task_deadline=False
+        task_id: int,
+        non_matching_task_deadline: Optional[datetime] = False,
+        matching_task_deadline: Optional[datetime] = False,
     ):
         inspect = app.control.inspect()
         scheduled_tasks = inspect.scheduled()
@@ -94,29 +74,22 @@ class NotificationService:
             for tasks in scheduled_tasks.values():
                 for task in tasks:
                     request = task.get("request")
-                    args = request.get("args")
-                    task_name = args[1] if len(args) > 1 else ""
+                    kwargs = request.get("kwargs")
+                    celery_task_id = kwargs.get("task_id")
 
-                    if f"Task {task_id} deadline" in task_name:
-                        try:
-                            deadline_str = task_name.split("Deadline: ")[1]
-                            task_deadline_parsed = parse(deadline_str)
-
-                            if (
-                                non_matching_task_deadline
-                                and task_deadline_parsed != non_matching_task_deadline
-                            ) or (
-                                matching_task_deadline
-                                and task_deadline_parsed == matching_task_deadline
-                            ):
-                                task_to_revoke = request.get("id")
-                                logger.info(
-                                    f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline_parsed})"
-                                )
-                                app.control.revoke(task_to_revoke)
-                        except (IndexError, ValueError) as e:
-                            logger.error(
-                                f"Failed to parse deadline for task: {task_name}. Error: {str(e)}"
+                    if task_id == celery_task_id:
+                        task_deadline = kwargs.get("task_deadline")
+                        if (
+                            non_matching_task_deadline
+                            and task_deadline != non_matching_task_deadline
+                        ) or (
+                            matching_task_deadline
+                            and task_deadline == matching_task_deadline
+                        ):
+                            task_to_revoke = request.get("id")
+                            logger.info(
+                                f"Revoking task with ID: {task_to_revoke} (Deadline: {task_deadline})"
                             )
+                            app.control.revoke(task_to_revoke)
         else:
             logger.error("No scheduled tasks found.")

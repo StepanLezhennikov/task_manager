@@ -1,15 +1,19 @@
-from rest_framework.filters import OrderingFilter
-from rest_framework import viewsets, status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
-from tasks.models import Task, TaskSubscription
-from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
-from .permissions import IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject
-from .services import TaskService
-from .filters import TaskFilter
-from notifications.services import NotificationService
 import logging
+
+from rest_framework import status, viewsets
+from dateutil.parser import ParserError, parse
+from rest_framework.views import APIView
+from rest_framework.filters import OrderingFilter
+from rest_framework.response import Response
+from django_filters.rest_framework import DjangoFilterBackend
+
+from api.auth import AuthAPI
+from tasks.models import Task, TaskSubscription
+from tasks.filters import TaskFilter
+from tasks.services import TaskService
+from tasks.permissions import IsTaskOwner, IsTaskPerformer, IsSafeMethodPermission
+from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
+from notifications.services import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -22,44 +26,51 @@ class TaskViewSet(viewsets.ModelViewSet):
     filterset_class = TaskFilter
     ordering_fields = ["title", "created_at"]
     ordering = ["-created_at"]
-    permission_classes = [IsTaskPerformerOrOwner, IsUserOwnerOrEditorOfProject]
+    permission_classes = [IsSafeMethodPermission | IsTaskPerformer | IsTaskOwner]
 
     def perform_create(self, serializer):
         task = serializer.save()
+        print("task:", task)
         TaskSubscription.objects.create(
-            task=task, user_id=self.request.user_id, role="Owner", is_subscribed=True
+            task=task,
+            user_id=self.request.user_data.id,
+            role=TaskSubscription.RoleChoices.OWNER,
+            is_subscribed=True,
         )
-
-        NotificationService.send_deadile_notification(
-            task.id, task.deadline, ["stepanlezennikov@gmail.com"]
+        user_email = AuthAPI.get_email_by_id(self.request.user_data.id)
+        NotificationService.send_deadline_notification(
+            task.id, task.deadline, [user_email]
         )
 
     def perform_destroy(self, request, *args, **kwargs):
         instance = self.get_object()
-        try:
-            NotificationService.remove_deadline_tasks(
-                instance.id, matching_task_deadline=instance.deadline
-            )
-        except Exception as e:
-            logger.error(
-                f"Failed to remove Celery tasks for task ID: {instance.id}. Error: {str(e)}"
-            )
+        NotificationService.remove_deadline_tasks(
+            instance.id, matching_task_deadline=instance.deadline
+        )
 
         instance.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UpdateTaskDeadlineView(APIView):
-    permission_classes = [IsTaskPerformerOrOwner]
+    permission_classes = [IsTaskOwner | IsTaskPerformer]
 
     def patch(self, request, **kwargs):
         pk = self.kwargs.get("pk")
+        try:
+            new_deadline = parse(request.data.get("deadline"))
+        except ParserError:
+            return Response(
+                {"error": "Invalid date format. Please use YYYY-MM-DD format."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        result = TaskService.update_deadline(pk, request.data)
+        result = TaskService.update_deadline(pk, new_deadline)
         if result.status == "success":
-            NotificationService.send_deadile_notification_after_changing_deadline(
-                pk, result.deadline, [self.request.user_email]
-            )  # Change it later
+            user_email = AuthAPI.get_email_by_id(self.request.user_data.id)
+            NotificationService.send_deadline_notification_after_changing_deadline(
+                pk, new_deadline, [user_email]
+            )
             return Response({"deadline": result.deadline}, status=status.HTTP_200_OK)
         return Response(result.error, status=status.HTTP_400_BAD_REQUEST)
 
