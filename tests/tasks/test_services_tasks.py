@@ -35,7 +35,5 @@ def test_update_task_deadline_service_task_not_found(task_data_views):
 
     invalid_task_id = 99999
     new_deadline = datetime.now() + timedelta(days=1)
-    try:
+    with pytest.raises(Http404):
         TaskService.update_deadline(invalid_task_id, new_deadline)
-    except Http404:
-        assert True
