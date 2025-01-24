@@ -9,7 +9,9 @@ def test_get_project_users(project, project_user):
     """Test retrieving project users."""
     users = ProjectService.get_project_users(project.id)
     assert len(users) == 2
-    assert users[1]["user_id"] == project_user.user_id
+    assert users[0]["user_id"] == project.project_users.first().id
+    assert users[0]["role"] == project.project_users.first().role
+    assert users[1]["user_id"] == project_user.id
     assert users[1]["role"] == project_user.role
 
 

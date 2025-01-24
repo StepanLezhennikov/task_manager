@@ -18,13 +18,11 @@ def test_create_project(api_client, admin_headers, project_data):
 
 
 @pytest.mark.django_db
-def test_update_project(api_client, admin_headers, project):
+def test_update_project(api_client, admin_headers, updated_data, project):
     """Test updating a project."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
-    updated_data = {"name": "Updated Project", "description": "Updated Description"}
     url = f"{PROJECTS_URL}{project.id}/"
     response = api_client.patch(url, data=updated_data, format="json")
-
     assert response.status_code == status.HTTP_200_OK
     project.refresh_from_db()
     assert project.name == "Updated Project"
@@ -57,3 +55,21 @@ def test_add_user_to_project(api_client, project, admin_headers):
     assert ProjectUser.objects.filter(
         project=project, user_id=99, role=ProjectUser.RoleChoices.EDITOR
     ).exists()
+
+
+@pytest.mark.django_db
+def test_add_user_to_project_without_permission(
+    api_client, project_with_other_owner, admin_headers
+):
+    """Test adding a user to a project without permission."""
+    api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
+    url = f"/user/{100}/projects/"
+    response = api_client.post(
+        url,
+        data={
+            "project": project_with_other_owner.id,
+            "role": ProjectUser.RoleChoices.EDITOR,
+        },
+        format="json",
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN

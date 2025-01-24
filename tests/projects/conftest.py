@@ -22,6 +22,23 @@ def project():
 
 @pytest.fixture
 @pytest.mark.django_db
+def project_with_other_owner():
+    """Фикстура для создания проекта."""
+    project = Project.objects.create(
+        name="Test Project with other owner",
+        description="Test",
+        logo_url="http://example.com/logo.png",
+    )
+    ProjectUser.objects.create(
+        project=project,
+        user_id=2,
+        role=ProjectUser.RoleChoices.OWNER,
+    )
+    return project
+
+
+@pytest.fixture
+@pytest.mark.django_db
 def project_user(project):
     """Фикстура для создания пользователя в проекте."""
     return ProjectUser.objects.create(
@@ -39,6 +56,12 @@ def project_data():
         "description": "Test Description data",
         "logo_url": "http://example.com/logo.png",
     }
+
+
+@pytest.fixture
+def updated_data() -> dict:
+    """Данные для обновления проекта через API."""
+    return {"name": "Updated Project", "description": "Updated Description"}
 
 
 @pytest.fixture

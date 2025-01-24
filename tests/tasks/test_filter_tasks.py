@@ -13,3 +13,4 @@ def test_filter_tasks_by_status(api_client, admin_headers, task_data_filters):
     assert response.data.get("count") == 1
     first_task = response.data.get("results")[0]
     assert first_task["title"] == "Write tests"
+    assert first_task["status"] == "BACKLOG"
