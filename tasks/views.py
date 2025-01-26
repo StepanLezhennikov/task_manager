@@ -56,8 +56,6 @@ class UpdateTaskDeadlineView(APIView):
     permission_classes = [IsTaskOwner | IsTaskPerformer]
 
     def patch(self, request, **kwargs):
-        print("patch начался")
-        print("user_data:", request.user_data)
         pk = self.kwargs.get("pk")
         try:
             new_deadline = parse(request.data.get("deadline"))

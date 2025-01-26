@@ -1,11 +1,13 @@
 import requests
 
+from task_manager.settings import FROM_EMAIL, SEND_MAIL_API_KEY, SEND_MAIL_API_URL
+
 
 class EmailAPI:
-    def __init__(self, api_url, api_key, from_email):
-        self.api_url = api_url
-        self.api_key = api_key
-        self.from_email = from_email
+    def __init__(self):
+        self.api_url = SEND_MAIL_API_URL
+        self.api_key = SEND_MAIL_API_KEY
+        self.from_email = FROM_EMAIL
 
     def send_email(self, subject, message, recipient):
         """

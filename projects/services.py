@@ -1,6 +1,7 @@
 from typing import List
 
 from django.db import transaction
+from django.db.models import QuerySet
 
 from tasks.models import Task
 from projects.models import Project, ProjectUser
@@ -59,14 +60,14 @@ class ProjectService:
             return project
 
     @staticmethod
-    def get_project_users_by_user_id(user_id: int):
+    def get_project_users_by_user_id(user_id: int) -> QuerySet[ProjectUser]:
         project_ids = ProjectUser.objects.filter(user_id=user_id).values_list(
             "project_id", flat=True
         )
         return ProjectUser.objects.filter(project_id__in=project_ids)
 
     @staticmethod
-    def get_users_projects(user_id: int):
+    def get_users_projects(user_id: int) -> QuerySet[Project]:
         project_ids = list(
             ProjectUser.objects.filter(user_id=user_id).values_list(
                 "project_id", flat=True

@@ -6,11 +6,10 @@ from celery import shared_task
 from django.utils.timezone import now
 
 from api.email import EmailAPI
-from task_manager.settings import FROM_EMAIL, SEND_MAIL_API_KEY, SEND_MAIL_API_URL
 from task_manager.celery_app import app
 
 logger = logging.getLogger(__name__)
-email_api = EmailAPI(SEND_MAIL_API_URL, SEND_MAIL_API_KEY, FROM_EMAIL)
+email_api = EmailAPI()
 
 
 class NotificationService:
