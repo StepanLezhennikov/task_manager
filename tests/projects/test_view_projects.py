@@ -42,7 +42,7 @@ def test_get_project_users(api_client, project, admin_headers):
 
 
 @pytest.mark.django_db
-def test_add_user_to_project(api_client, project, admin_headers):
+def test_add_user_to_project(api_client, project, admin_headers, mock_httpx_get):
     """Test adding a user to a project."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     url = f"/user/{99}/projects/"
@@ -59,7 +59,7 @@ def test_add_user_to_project(api_client, project, admin_headers):
 
 @pytest.mark.django_db
 def test_add_user_to_project_without_permission(
-    api_client, project_with_other_owner, admin_headers
+    api_client, project_with_other_owner, admin_headers, mock_httpx_get
 ):
     """Test adding a user to a project without permission."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])

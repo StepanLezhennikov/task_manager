@@ -1,19 +1,22 @@
 from typing import Dict
+from unittest.mock import MagicMock, patch
 
 import pytest
 from jose import jwt
 from rest_framework.test import APIClient
 
-from projects.schemas.dto import Role
+from task_manager import settings
 
 
-def create_jwt_token(user_id: int | None = None, role: Role | None = None) -> str:
+def create_jwt_token(
+    user_id: int | None = None, permissions: list[str] | None = None
+) -> str:
     payload = {}
     if user_id is not None:
         payload.update({"id": str(user_id)})
-    if role is not None:
-        payload.update({"role": str(role)})
-    return jwt.encode(payload, "super_secret_key", algorithm="HS256")
+    if permissions is not None:
+        payload.update({"permissions": permissions})
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
 
 
 @pytest.fixture
@@ -25,4 +28,13 @@ def api_client():
 
 @pytest.fixture
 def admin_headers() -> Dict[str, str]:
-    return {"Authorization": create_jwt_token(user_id=1, role=Role.ADMIN)}
+    return {"Authorization": create_jwt_token(user_id=1, permissions=[])}
+
+
+@pytest.fixture
+def mock_httpx_get():
+    with patch("httpx.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = [{"email": "test@example.com"}]
+        mock_get.return_value = mock_response
+        yield mock_get

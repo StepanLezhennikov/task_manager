@@ -9,7 +9,7 @@ from tests.tasks.conftest import TASKS_URL, TASK_SUBSCRIPTIONS_URL
 
 
 @pytest.mark.django_db
-def test_create_task(api_client, admin_headers, task_data_views):
+def test_create_task(api_client, admin_headers, task_data_views, mock_httpx_get):
     """Тест создания задачи через TaskViewSet."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     response = api_client.post(TASKS_URL, data=task_data_views)
@@ -23,7 +23,6 @@ def test_create_task(api_client, admin_headers, task_data_views):
 def test_create_task_with_invalid_data(api_client, admin_headers, invalid_task_data):
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     response = api_client.post(TASKS_URL, data=invalid_task_data)
-    print(response.data, response.status_code)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
@@ -37,7 +36,7 @@ def test_list_tasks(api_client, admin_headers, task_data_filters):
 
 
 @pytest.mark.django_db
-def test_update_task_deadline(api_client, admin_headers, task):
+def test_update_task_deadline(api_client, admin_headers, task, mock_httpx_get):
     """Тест обновления срока выполнения задачи через UpdateTaskDeadlineView."""
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     url = f"/tasks/{task.pk}/deadline"

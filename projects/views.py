@@ -75,6 +75,7 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
             )
 
         added_user_email = AuthAPI.get_email_by_id(added_user_id)
+
         role = request.data.get("role")
 
         user_data = {
