@@ -75,12 +75,13 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
             )
 
         added_user_email = AuthAPI.get_email_by_id(added_user_id)
-        permissions = request.data.get("permissions")
+
+        role = request.data.get("role")
 
         user_data = {
             "user_id": added_user_id,
             "project": project_id,
-            "permissions": permissions,
+            "role": role,
         }
         self.check_object_permissions(request, project)
 

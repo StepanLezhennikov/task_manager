@@ -1,4 +1,5 @@
 from typing import Dict
+from unittest.mock import MagicMock, patch
 
 import pytest
 from jose import jwt
@@ -26,3 +27,12 @@ def api_client():
 @pytest.fixture
 def admin_headers() -> Dict[str, str]:
     return {"Authorization": create_jwt_token(user_id=1, permissions=[])}
+
+
+@pytest.fixture
+def mock_httpx_get():
+    with patch("httpx.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = [{"email": "test@example.com"}]
+        mock_get.return_value = mock_response
+        yield mock_get
