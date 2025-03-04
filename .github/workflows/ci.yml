@@ -37,6 +37,9 @@ jobs:
       - name: Docker Setup Docker
         uses: docker/setup-docker-action@v4.1.0
 
+      - name: Docker Setup Network
+        run: docker network create app-network
+
       - name: Docker Compose Setup
         uses: ndeloof/install-compose-action@v0.0.1
 
