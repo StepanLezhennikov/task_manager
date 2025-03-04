@@ -1,4 +1,5 @@
 from jose import jwt, exceptions
+from django.http import JsonResponse
 from rest_framework.exceptions import AuthenticationFailed
 
 from task_manager import settings
@@ -16,11 +17,11 @@ class TokenMiddleware:
         try:
             jwt.decode(token, key=settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         except exceptions.ExpiredSignatureError:
-            raise AuthenticationFailed("Token has expired")
+            return JsonResponse({"detail": "Token has expired"}, status=401)
         except exceptions.JWTClaimsError as e:
-            raise AuthenticationFailed(f"Invalid claims: {str(e)}")
+            return JsonResponse({"detail": f"Invalid claims: {str(e)}"}, status=401)
         except exceptions.JWTError:
-            raise AuthenticationFailed("Invalid token")
+            return JsonResponse({"detail": "Invalid token"}, status=403)
 
         claims = jwt.get_unverified_claims(token)
         if "id" not in claims or "permissions" not in claims.keys():
