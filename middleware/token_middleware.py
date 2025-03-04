@@ -13,9 +13,9 @@ class TokenMiddleware:
             raise AuthenticationFailed("No token provided")
 
         claims = jwt.get_unverified_claims(token)
-        if "id" not in claims or "role" not in claims.keys():
+        if "id" not in claims or "permissions" not in claims.keys():
             raise Exception("Invalid JWT token!")
 
-        user_data = User(id=int(claims["id"]), role=claims["role"])
+        user_data = User(id=int(claims["id"]), permissions=claims["permissions"])
         request.user_data = user_data
         return self.get_response(request)

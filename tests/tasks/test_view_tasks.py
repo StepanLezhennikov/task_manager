@@ -23,7 +23,6 @@ def test_create_task(api_client, admin_headers, task_data_views):
 def test_create_task_with_invalid_data(api_client, admin_headers, invalid_task_data):
     api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
     response = api_client.post(TASKS_URL, data=invalid_task_data)
-    print(response.data, response.status_code)
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 

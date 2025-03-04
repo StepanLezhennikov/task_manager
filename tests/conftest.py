@@ -4,15 +4,15 @@ import pytest
 from jose import jwt
 from rest_framework.test import APIClient
 
-from projects.schemas.dto import Role
 
-
-def create_jwt_token(user_id: int | None = None, role: Role | None = None) -> str:
+def create_jwt_token(
+    user_id: int | None = None, permissions: list[str] | None = None
+) -> str:
     payload = {}
     if user_id is not None:
         payload.update({"id": str(user_id)})
-    if role is not None:
-        payload.update({"role": str(role)})
+    if permissions is not None:
+        payload.update({"permissions": permissions})
     return jwt.encode(payload, "super_secret_key", algorithm="HS256")
 
 
@@ -25,4 +25,4 @@ def api_client():
 
 @pytest.fixture
 def admin_headers() -> Dict[str, str]:
-    return {"Authorization": create_jwt_token(user_id=1, role=Role.ADMIN)}
+    return {"Authorization": create_jwt_token(user_id=1, permissions=[])}

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 @dataclass
 class User:
     id: int
-    role: str
+    permissions: list[str]
 
 
 class Role(Enum):

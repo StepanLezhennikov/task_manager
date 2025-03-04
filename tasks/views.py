@@ -30,7 +30,6 @@ class TaskViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         task = serializer.save()
-        print("task:", task)
         TaskSubscription.objects.create(
             task=task,
             user_id=self.request.user_data.id,

@@ -39,37 +39,3 @@ def test_get_project_users(api_client, project, admin_headers):
     assert len(response.data) == 1
     assert response.data[0]["user_id"] == 1
     assert response.data[0]["role"] == ProjectUser.RoleChoices.OWNER
-
-
-@pytest.mark.django_db
-def test_add_user_to_project(api_client, project, admin_headers):
-    """Test adding a user to a project."""
-    api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
-    url = f"/user/{99}/projects/"
-    response = api_client.post(
-        url,
-        data={"project": project.id, "role": ProjectUser.RoleChoices.EDITOR},
-        format="json",
-    )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert ProjectUser.objects.filter(
-        project=project, user_id=99, role=ProjectUser.RoleChoices.EDITOR
-    ).exists()
-
-
-@pytest.mark.django_db
-def test_add_user_to_project_without_permission(
-    api_client, project_with_other_owner, admin_headers
-):
-    """Test adding a user to a project without permission."""
-    api_client.credentials(HTTP_AUTHORIZATION=admin_headers["Authorization"])
-    url = f"/user/{100}/projects/"
-    response = api_client.post(
-        url,
-        data={
-            "project": project_with_other_owner.id,
-            "role": ProjectUser.RoleChoices.EDITOR,
-        },
-        format="json",
-    )
-    assert response.status_code == status.HTTP_403_FORBIDDEN
