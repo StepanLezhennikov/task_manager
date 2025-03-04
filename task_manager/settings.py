@@ -21,6 +21,7 @@ env = environ.Env()
 env.read_env(env_file=BASE_DIR / ".env.example")
 
 SECRET_KEY = env("SECRET_KEY")
+ALGORITHM = env("ALGORITHM")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
