@@ -2,10 +2,13 @@ import httpx
 
 
 class AuthAPI:
-    @staticmethod
-    def get_email_by_id(user_id: int) -> str:
+    base_url = "http://user_management:8001/v1"
+
+    @classmethod
+    def get_email_by_id(cls, user_id: int) -> str:
         response = httpx.get(
-            "http://user_management:8001/v1/users/?limit=10&offset=0&sort_by=created_at&sort_order=asc&id={}".format(
+            cls.base_url
+            + "/users/?limit=10&offset=0&sort_by=created_at&sort_order=asc&id={}".format(
                 str(user_id)
             )
         )
