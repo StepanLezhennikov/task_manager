@@ -32,6 +32,7 @@ services:
       - .:/app
     networks:
       - app-network
+      - kafka-network
     env_file: .env.example
     entrypoint: "/entrypoint.sh"
 
@@ -64,4 +65,6 @@ volumes:
 
 networks:
   app-network:
+    external: true
+  kafka-network:
     external: true
