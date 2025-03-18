@@ -1,10 +1,12 @@
 from typing import List
+from datetime import datetime
 
 from django.db import transaction
 from django.db.models import QuerySet
 
 from tasks.models import Task
 from projects.models import Project, ProjectUser
+from api.kafka_producer import TOPICS, KafkaProducerService
 from projects.serializers import ProjectUserSerializerGet
 
 
@@ -37,24 +39,75 @@ class ProjectService:
         and creates associated tasks and project users.
         """
         with transaction.atomic():
-            name = validated_data.pop("name")
-            description = validated_data.pop("description", None)
-            logo_url = validated_data.pop("logo_url", None)
+            name = validated_data.get("name")
+            description = validated_data.get("description", None)
+            logo_url = validated_data.get("logo_url", None)
 
             project = Project.objects.create(
                 name=name, description=description, logo_url=logo_url
             )
 
-            for task_data in validated_data.pop("tasks", []):
-                Task.objects.create(project=project, **task_data)
+            created_tasks_ids = []
+            for task_data in validated_data.get("tasks", []):
+                created_task = Task.objects.create(project=project, **task_data)
 
-            for project_user_data in validated_data.pop("project_users", []):
-                ProjectUser.objects.create(project=project, **project_user_data)
+                KafkaProducerService().send_message(
+                    {
+                        "task_id": created_task.pk,
+                        "project_id": project.pk,
+                        "status": created_task.status,
+                        "deadline": created_task.deadline.isoformat(),
+                        "owner_id": user_id,
+                        "created_at": datetime.now().isoformat(),
+                    },
+                    TOPICS.TASK_CREATED.value,
+                )
 
-            ProjectUser.objects.create(
+                created_tasks_ids.append(created_task.pk)
+
+            project_users_ids = []
+
+            created_owner = ProjectUser.objects.create(
                 project=project,
                 user_id=user_id,
                 role=ProjectUser.RoleChoices.OWNER,
+            )
+
+            project_users_ids.append(created_owner.pk)
+
+            for project_user_data in validated_data.get("project_users", []):
+                created_project_user = ProjectUser.objects.create(
+                    project=project, **project_user_data
+                )
+
+                KafkaProducerService().send_message(
+                    {
+                        "user_id": created_project_user.user_id,
+                        "project_id": project.pk,
+                        "created_at": datetime.now().isoformat(),
+                    },
+                    TOPICS.USER_ADDED.value,
+                )
+
+                project_users_ids.append(created_project_user.pk)
+
+            KafkaProducerService().send_message(
+                {
+                    "user_id": user_id,
+                    "project_id": project.pk,
+                    "created_at": datetime.now().isoformat(),
+                },
+                TOPICS.USER_ADDED.value,
+            )
+
+            KafkaProducerService().send_message(
+                {
+                    "project_id": project.pk,
+                    "tasks": created_tasks_ids,
+                    "members": project_users_ids,
+                    "created_at": datetime.now().isoformat(),
+                },
+                TOPICS.PROJECT_CREATED.value,
             )
 
             return project

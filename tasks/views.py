@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from rest_framework import status, viewsets
 from dateutil.parser import ParserError, parse
@@ -13,6 +14,7 @@ from tasks.filters import TaskFilter
 from tasks.services import TaskService
 from tasks.permissions import IsTaskOwner, IsTaskPerformer, IsSafeMethodPermission
 from tasks.serializers import TaskSerializer, TaskSubscriptionSerializer
+from api.kafka_producer import TOPICS, KafkaProducerService
 from notifications.services import NotificationService
 
 logger = logging.getLogger(__name__)
@@ -40,6 +42,17 @@ class TaskViewSet(viewsets.ModelViewSet):
         NotificationService.send_deadline_notification(
             task.id, task.deadline, [user_email]
         )
+        KafkaProducerService().send_message(
+            {
+                "task_id": task.id,
+                "project_id": task.project.pk,
+                "status": task.status,
+                "deadline": task.deadline.isoformat(),
+                "owner_id": self.request.user_data.id,
+                "created_at": datetime.now().isoformat(),
+            },
+            TOPICS.TASK_CREATED.value,
+        )
 
     def perform_destroy(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -47,8 +60,39 @@ class TaskViewSet(viewsets.ModelViewSet):
             instance.id, matching_task_deadline=instance.deadline
         )
 
+        KafkaProducerService().send_message(
+            {
+                "task_id": instance.id,
+                "project_id": instance.project.pk,
+                "created_at": datetime.now().isoformat(),
+            },
+            TOPICS.TASK_DELETED.value,
+        )
+
         instance.delete()
+
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs) -> Response:
+        instance = self.get_object()
+
+        response = super().update(request, *args, **kwargs)
+        instance.refresh_from_db()
+
+        KafkaProducerService().send_message(
+            {
+                "task_id": instance.id,
+                "project_id": instance.project.pk,
+                "user_id": self.request.user_data.id,
+                "status": instance.status,
+                "deadline": instance.deadline.isoformat(),
+                "task_started_time": instance.created_at.isoformat(),
+                "created_at": datetime.now().isoformat(),
+            },
+            TOPICS.TASK_UPDATED.value,
+        )
+
+        return response
 
 
 class UpdateTaskDeadlineView(APIView):

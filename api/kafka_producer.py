@@ -19,6 +19,3 @@ class KafkaProducerService:
             print(f"Message sent to topic {topic}: {message}")
         except Exception as e:
             print(f"Failed to send message: {e}")
-
-    def close(self):
-        self.producer.close()

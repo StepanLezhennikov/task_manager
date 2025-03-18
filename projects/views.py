@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from rest_framework import status, viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
@@ -6,6 +8,7 @@ from rest_framework.decorators import action
 from api.auth import AuthAPI
 from projects.models import Project, ProjectUser
 from projects.services import ProjectService
+from api.kafka_producer import TOPICS, KafkaProducerService
 from projects.permissions import (
     HasAccessToProject,
     IsProjectUserOwner,
@@ -37,8 +40,50 @@ class ProjectViewSet(viewsets.ModelViewSet):
             validated_data, user_id
         )
 
-        serializer.instance = project
         return project
+
+    def perform_destroy(self, instance):
+        instance = self.get_object()
+
+        KafkaProducerService().send_message(
+            {
+                "project_id": instance.id,
+                "created_at": datetime.now().isoformat(),
+            },
+            TOPICS.PROJECT_DELETED.value,
+        )
+
+        for task in instance.tasks.all():
+            KafkaProducerService().send_message(
+                {
+                    "task_id": task.pk,
+                    "project_id": instance.id,
+                    "created_at": datetime.now().isoformat(),
+                },
+                TOPICS.TASK_DELETED.value,
+            )
+
+        for user in instance.project_users.all():
+            KafkaProducerService().send_message(
+                {
+                    "user_id": user.pk,
+                    "project_id": instance.id,
+                    "created_at": datetime.now().isoformat(),
+                },
+                TOPICS.USER_DELETED.value,
+            )
+
+        instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs) -> Response:
+        instance = self.get_object()
+
+        response = super().update(request, *args, **kwargs)
+        instance.refresh_from_db()
+
+        return response
 
 
 class ProjectUserViewSet(viewsets.ModelViewSet):
@@ -61,7 +106,6 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
     )
     def add_user_to_project(self, request, *args, **kwargs) -> Response:
         """Добавление пользователя в проект"""
-
         added_user_id = kwargs.get("user_id")
         project_id = request.data.get("project")
 
@@ -88,6 +132,15 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=user_data)
         if serializer.is_valid():
             serializer.save(user_id=added_user_id)
+
+            KafkaProducerService().send_message(
+                {
+                    "project_id": project_id,
+                    "user_id": added_user_id,
+                    "created_at": datetime.now().isoformat(),
+                },
+                TOPICS.USER_ADDED.value,
+            )
 
             user_email = AuthAPI.get_email_by_id(request.user_data.id)
             NotificationService.send_invite_email(
@@ -116,3 +169,19 @@ class ProjectUserViewSet(viewsets.ModelViewSet):
 
         data = ProjectService.get_project_users(project_id)
         return Response(data, status=status.HTTP_200_OK)
+
+    def perform_destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        KafkaProducerService().send_message(
+            {
+                "user_id": instance.user_id,
+                "project_id": instance.project.pk,
+                "created_at": datetime.now().isoformat(),
+            },
+            TOPICS.USER_DELETED.value,
+        )
+
+        instance.delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
