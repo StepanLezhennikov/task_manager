@@ -56,8 +56,6 @@ class ProjectService:
                         "task_id": created_task.pk,
                         "project_id": project.pk,
                         "status": created_task.status,
-                        "deadline": created_task.deadline.isoformat(),
-                        "owner_id": user_id,
                         "created_at": datetime.now().isoformat(),
                     },
                     TOPICS.TASK_CREATED.value,

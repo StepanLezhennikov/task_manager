@@ -85,7 +85,6 @@ class TaskViewSet(viewsets.ModelViewSet):
                 "project_id": instance.project.pk,
                 "user_id": self.request.user_data.id,
                 "status": instance.status,
-                "deadline": instance.deadline.isoformat(),
                 "task_started_time": instance.created_at.isoformat(),
                 "created_at": datetime.now().isoformat(),
             },

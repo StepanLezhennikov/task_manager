@@ -1,8 +1,19 @@
 import json
+from enum import Enum
 
 from kafka import KafkaProducer
 
 from task_manager import settings
+
+
+class TOPICS(str, Enum):
+    TASK_CREATED = "task.create"
+    TASK_UPDATED = "task.update"
+    TASK_DELETED = "task.delete"
+    PROJECT_CREATED = "project.create"
+    PROJECT_DELETED = "project.delete"
+    USER_ADDED = "user.create"
+    USER_DELETED = "user.delete"
 
 
 class KafkaProducerService:
